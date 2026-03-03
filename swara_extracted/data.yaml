@@ -1,0 +1,16 @@
+names:
+- Dha
+- Ga
+- Komal Dha
+- Komal Ga
+- Komal Ni
+- Komol Re
+- Ma
+- Ni
+- Pa
+- Re
+- Sa
+- Tivra Ma
+nc: 12
+train: /content/data/images/train
+val: /content/data/images/val

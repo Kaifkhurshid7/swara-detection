@@ -1,0 +1,20 @@
+# Swaralipi YOLO dataset - 12 swara classes
+# Place images in datasets/images/train, datasets/images/val
+# Place labels in datasets/labels/train, datasets/labels/val
+path: .
+train: datasets/images/train
+val: datasets/images/val
+nc: 12
+names:
+  - Dha
+  - Ga
+  - Komal Dha
+  - Komal Ga
+  - Komal Ni
+  - Komol Re
+  - Ma
+  - Ni
+  - Pa
+  - Re
+  - Sa
+  - Tivra Ma

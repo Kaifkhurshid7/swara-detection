@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neutral-50 text-neutral-900 antialiased;
+  }
+}
+
+/* react-image-crop – clean black outline for light theme */
+.ReactCrop__crop-selection {
+  border: 2px solid #0a0a0a;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+}
+.ReactCrop__drag-handle::after {
+  background: #0a0a0a;
+}
