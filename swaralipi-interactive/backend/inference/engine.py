@@ -10,8 +10,7 @@ from PIL import Image
 from ultralytics import YOLO
 from ultralytics.nn.tasks import DetectionModel
 
-# Fix for PyTorch weights_only restrictions when loading Ultralytics checkpoints.
-# We allowlist only known model/container classes used by YOLO weights in this project.
+
 _safe_globals = [
     set,
     dict,
