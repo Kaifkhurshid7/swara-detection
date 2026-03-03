@@ -68,9 +68,11 @@ def _get_model():
         _model = YOLO(str(MODEL_PATH))
     return _model
 
-def run_inference(base64_image: str, conf_threshold: float = 0.25):
+def run_inference(base64_image: str, conf_threshold: float = 0.45):
     """
-    Decode base64 image, run YOLO, return best box: (class_id, confidence) or (None, 0.0).
+    Decode base64 image, run YOLO, return list of detections: 
+    [{"class_id": int, "confidence": float, "bbox": [x1, y1, x2, y2]}, ...]
+    Detections are sorted by x-coordinate (musical flow).
     """
     try:
         # Strip data URL prefix if present
@@ -79,40 +81,37 @@ def run_inference(base64_image: str, conf_threshold: float = 0.25):
         raw = base64.b64decode(base64_image)
     except Exception as e:
         print(f"Base64 decoding error: {e}")
-        return None, 0.0
+        return []
 
     try:
         img_bytes = io.BytesIO(raw)
         image = Image.open(img_bytes).convert("RGB")
-        image = _tight_crop_foreground(image)
+        # For full-line detection, we might want to skip tight cropping or handle it carefully
+        # For now, let's keep the image as is to preserve relative positions of multiple symbols
     except Exception as e:
         print(f"Image parsing error: {e}")
-        return None, 0.0
+        return []
 
+    detections = []
     try:
         model = _get_model()
-        tight = _tight_crop_foreground(image)
-        sources = [tight]
-        if tight.size != image.size:
-            sources.append(image)
-    except Exception as e:
-        print(f"Inference prep error: {e}")
-        return None, 0.0
-
-    best_id, best_conf = None, 0.0
-    try:
-        for src in sources:
-            results = model.predict(source=src, conf=conf_threshold, verbose=False)
-            for r in results:
-                if r.boxes is None:
-                    continue
-                for box in r.boxes:
-                    conf = float(box.conf[0])
-                    if conf > best_conf:
-                        best_conf = conf
-                        best_id = int(box.cls[0])
+        results = model.predict(source=image, conf=conf_threshold, verbose=False)
+        for r in results:
+            if r.boxes is None:
+                continue
+            for box in r.boxes:
+                conf = float(box.conf[0])
+                cls = int(box.cls[0])
+                xyxy = box.xyxy[0].tolist() # [x1, y1, x2, y2]
+                detections.append({
+                    "class_id": cls,
+                    "confidence": conf,
+                    "bbox": xyxy
+                })
     except Exception as e:
         print(f"Inference error: {e}")
-        return None, 0.0
+        return []
                 
-    return best_id, best_conf
+    # Sort detections by x-coordinate (left to right)
+    detections.sort(key=lambda d: d["bbox"][0])
+    return detections
