@@ -50,11 +50,11 @@ def analyze(req: AnalyzeRequest):
         raise HTTPException(status_code=400, detail=f"Invalid image data: {e}")
 
     try:
-        cls_id, conf = run_inference(b64)
+        detections_raw = run_inference(b64)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Inference failed: {e}")
 
-    if cls_id is None:
+    if not detections_raw:
         return {
             "success": True,
             "class_id": None,
@@ -65,28 +65,37 @@ def analyze(req: AnalyzeRequest):
             "message": "No symbol detected",
         }
 
-    info = get_swara_info(cls_id)
+    # Process all detections
+    processed_detections = []
+    for det in detections_raw:
+        cls_id = det["class_id"]
+        conf = det["confidence"]
+        info = get_swara_info(cls_id)
+        processed_detections.append({
+            "class_id": cls_id,
+            "class_name": info["english_name"],
+            "hindi_symbol": info["hindi_symbol"],
+            "confidence": round(conf, 4),
+            "bbox": det["bbox"]
+        })
+
+    # For backward compatibility and history, use the first/highest confidence detection
+    # detections_raw is sorted by x, so we might want the highest confidence for 'primary'
+    # or just the first of the sorted list. Let's use the first of the processed list.
+    primary = max(processed_detections, key=lambda d: d["confidence"])
     timestamp = datetime.utcnow().isoformat() + "Z"
 
     try:
-        insert_scan(timestamp, info["english_name"], cls_id, conf, b64)
+        insert_scan(timestamp, primary["class_name"], primary["class_id"], primary["confidence"], b64)
     except Exception as e:
         print(f"Failed to save scan to history: {e}")
 
-    processed_detections = [{
-        "class_id": cls_id,
-        "class_name": info["english_name"],
-        "hindi_symbol": info["hindi_symbol"],
-        "confidence": round(conf, 4),
-        "bbox": [0, 0, 0, 0] # Dummy bbox for single detection
-    }]
-
     return {
         "success": True,
-        "class_id": cls_id,
-        "class_name": info["english_name"],
-        "hindi_symbol": info["hindi_symbol"],
-        "confidence": round(conf, 4),
+        "class_id": primary["class_id"],
+        "class_name": primary["class_name"],
+        "hindi_symbol": primary["hindi_symbol"],
+        "confidence": primary["confidence"],
         "detections": processed_detections,
         "timestamp": timestamp,
     }

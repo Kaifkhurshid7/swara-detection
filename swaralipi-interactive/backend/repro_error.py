@@ -10,8 +10,10 @@ if __name__ == "__main__":
     print("Testing run_inference...")
     try:
         b64 = create_dummy_b64()
-        cls_id, conf = run_inference(b64)
-        print(f"Success! Class: {cls_id}, Conf: {conf}")
+        results = run_inference(b64)
+        print(f"Success! Detections found: {len(results)}")
+        for d in results:
+            print(f" - Class: {d['class_id']}, Conf: {d['confidence']}")
     except Exception as e:
         print(f"FAILED: {e}")
         import traceback

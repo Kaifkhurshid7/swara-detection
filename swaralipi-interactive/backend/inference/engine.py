@@ -112,9 +112,6 @@ def run_inference(base64_image: str, conf_threshold: float = 0.45):
         print(f"Inference error: {e}")
         return []
                 
-    if not detections:
-        return None, 0.0
-                
-    # Return top detection (highest confidence)
-    top = max(detections, key=lambda d: d["confidence"])
-    return top["class_id"], top["confidence"]
+    # Sort detections by x-coordinate (left to right) for musical flow
+    detections.sort(key=lambda d: d["bbox"][0])
+    return detections

@@ -24,4 +24,4 @@ Write-Host "API docs:          http://127.0.0.1:8000/docs"
 Write-Host "Press Ctrl+C to stop."
 Write-Host ""
 
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload

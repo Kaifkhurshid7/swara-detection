@@ -5,7 +5,7 @@ def create_dummy_b64():
     return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
 
 if __name__ == "__main__":
-    url = "http://127.0.0.1:8001/analyze"
+    url = "http://127.0.0.1:8000/analyze"
     print(f"Calling {url}...")
     b64 = "data:image/png;base64," + create_dummy_b64()
     try:
