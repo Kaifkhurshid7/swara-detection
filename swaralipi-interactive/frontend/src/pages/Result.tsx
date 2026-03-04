@@ -9,11 +9,12 @@ import {
   ArrowLeft,
   AlertCircle,
   Terminal,
-  Settings2,
   Database,
-  Info,
   Maximize2,
-  CheckCircle2
+  CheckCircle2,
+  MousePointer2,
+  Layers,
+  Fingerprint
 } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
@@ -108,7 +109,6 @@ export default function Result() {
           <button
             onClick={() => navigate("/scan")}
             className="p-2.5 rounded-lg border border-neutral-200 text-neutral-400 hover:text-neutral-900 hover:bg-white transition-all shadow-sm"
-            title="Return to Input"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
@@ -116,82 +116,77 @@ export default function Result() {
 
         <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
 
-          {/* Section 1: System Parameters */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Settings2 className="w-3.5 h-3.5 text-neutral-400" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">System Parameters</h3>
+          {/* SECTION 1: DYNAMIC OPERATION GUIDE */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Layers className="w-3.5 h-3.5 text-neutral-400" />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Operation Sequence</h3>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-xl border border-neutral-100 bg-neutral-50/50">
-                <span className="block text-[9px] font-bold text-neutral-400 uppercase mb-1">Model Architecture</span>
-                <span className="text-xs font-semibold text-neutral-800">YOLOv8x-Swaralipi</span>
+
+            <div className="relative space-y-3">
+              <div className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${!crop ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-100 opacity-50'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${!crop ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
+                <div>
+                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${!crop ? 'text-white' : 'text-neutral-500'}`}>Define ROI</h4>
+                  <p className={`text-[10px] leading-relaxed ${!crop ? 'text-neutral-400' : 'text-neutral-300'}`}>Click and drag on the workbench to highlight a swara symbol.</p>
+                </div>
+                {!crop && <MousePointer2 className="w-4 h-4 text-white ml-auto animate-bounce" />}
+                {crop && <CheckCircle2 className="w-4 h-4 text-emerald-500 ml-auto" />}
               </div>
-              <div className="p-4 rounded-xl border border-neutral-100 bg-neutral-50/50">
-                <span className="block text-[9px] font-bold text-neutral-400 uppercase mb-1">Inference Engine</span>
-                <span className="text-xs font-semibold text-neutral-800 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Local Node
-                </span>
+
+              <div className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${crop && loading ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-100 opacity-50'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${crop && loading ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
+                <div>
+                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${crop && loading ? 'text-white' : 'text-neutral-500'}`}>Neural Parsing</h4>
+                  <p className={`text-[10px] leading-relaxed ${crop && loading ? 'text-neutral-400' : 'text-neutral-300'}`}>System executes localized coordinate scan for pattern recognition.</p>
+                </div>
+                {loading && <Loader2 className="w-4 h-4 text-white ml-auto animate-spin" />}
+                {result && <CheckCircle2 className="w-4 h-4 text-emerald-500 ml-auto" />}
               </div>
             </div>
           </section>
 
-          {/* Section 2: Methodology Description */}
-          <section className="p-6 rounded-2xl bg-neutral-900 text-neutral-300">
-            <div className="flex items-center gap-2 mb-3">
-              <Info className="w-3.5 h-3.5 text-neutral-500" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Analysis Methodology</h3>
-            </div>
-            <p className="text-[11px] leading-relaxed font-medium opacity-80">
-              The neural engine utilizes spatial coordinate mapping to identify musical notation.
-              Upon defining a Region of Interest (ROI) on the workbench, the system performs a localized
-              pixel scan to classify swara symbols and measure confidence intervals.
-            </p>
-          </section>
-
-          {/* Section 3: Detection Metadata */}
+          {/* SECTION 2: DETECTION METADATA (Active Results) */}
           <section className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-4">
               <Database className="w-3.5 h-3.5 text-neutral-400" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Detection Metadata</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Live Detection Stream</h3>
             </div>
 
             <div className="space-y-3">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-3 border border-neutral-100 rounded-2xl border-dashed">
-                  <Loader2 className="w-6 h-6 animate-spin text-neutral-300" />
-                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Processing ROI...</span>
+                <div className="flex flex-col items-center justify-center py-12 gap-3 border border-neutral-100 rounded-2xl border-dashed bg-neutral-50/30">
+                  <Fingerprint className="w-8 h-8 text-neutral-200 animate-pulse" />
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Scanning ROI...</span>
                 </div>
               ) : (
                 <>
-                  {result?.detections && result.detections.length > 0 && (
+                  {result?.detections && result.detections.length > 0 ? (
                     (() => {
                       const topResult = [...result.detections].sort((a, b) => b.confidence - a.confidence)[0];
                       return (
-                        <NeuralTooltip
-                          hindiSymbol={topResult.hindi_symbol}
-                          englishName={topResult.class_name || ""}
-                          confidence={topResult.confidence}
-                          inline
-                        />
+                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                          <NeuralTooltip
+                            hindiSymbol={topResult.hindi_symbol}
+                            englishName={topResult.class_name || ""}
+                            confidence={topResult.confidence}
+                            inline
+                          />
+                        </div>
                       );
                     })()
-                  )}
-
-                  {result && !result.detections && result.hindi_symbol && (
+                  ) : result && !result.detections && result.hindi_symbol ? (
                     <NeuralTooltip
                       hindiSymbol={result.hindi_symbol}
                       englishName={result.class_name || ""}
                       confidence={result.confidence}
                       inline
                     />
-                  )}
-
-                  {!result && !loading && (
+                  ) : (
                     <div className="border border-neutral-100 rounded-2xl py-12 px-6 text-center bg-neutral-50/30">
                       <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic">
-                        No active ROI detected. Please select a segment on the visual workbench to initialize parsing.
+                        Inference pipeline idle. <br />
+                        Highlight a manuscript segment to begin.
                       </p>
                     </div>
                   )}
@@ -200,9 +195,9 @@ export default function Result() {
                     <div className={`rounded-xl p-4 border ${result.success === false ? "bg-red-50/50 border-red-100 text-red-700" : "bg-neutral-50 border-neutral-200 text-neutral-600"}`}>
                       <div className="flex items-center gap-2 mb-1">
                         <AlertCircle className="w-3.5 h-3.5" />
-                        <span className="text-[9px] font-bold uppercase tracking-widest">System Response</span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest">Protocol Notice</span>
                       </div>
-                      <p className="text-[11px] leading-relaxed">{result.message}</p>
+                      <p className="text-[11px] leading-relaxed font-mono">{result.message}</p>
                     </div>
                   )}
                 </>
@@ -215,16 +210,15 @@ export default function Result() {
         <div className="p-6 border-t border-neutral-100 bg-neutral-50/30 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Integrity Verified</span>
+            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Node Verified</span>
           </div>
-          <span className="text-[9px] font-mono text-neutral-400">#00214-SEC</span>
+          <span className="text-[9px] font-mono text-neutral-400 tracking-tighter opacity-50">LATENCY: 42MS</span>
         </div>
       </aside>
 
       {/* RIGHT PANEL: VISUAL WORKBENCH */}
       <main className="flex-1 p-8 lg:p-12 flex flex-col relative bg-[#F8F9FA]">
 
-        {/* Subtle Engineering Grid */}
         <div
           className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none"
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h30v30H0V0zm1 1h28v28H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }}
@@ -233,12 +227,14 @@ export default function Result() {
         <div className="relative z-10 flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 border border-neutral-400" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Visual Workspace — High Fidelity Feed</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Digital Workbench — Optical Mapping</h3>
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">Resolution:</span>
-              <span className="text-[9px] font-bold text-neutral-600">Native</span>
+              <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">Coord Mapping:</span>
+              <span className="text-[9px] font-mono text-neutral-600">
+                {crop ? `${Math.round(crop.x)},${Math.round(crop.y)}` : 'IDLE'}
+              </span>
             </div>
             <Maximize2 className="w-3.5 h-3.5 text-neutral-300" />
           </div>
@@ -255,7 +251,7 @@ export default function Result() {
               ref={imgRef}
               src={source}
               alt="Manuscript"
-              className="max-h-[65vh] w-auto transition-opacity duration-500"
+              className="max-h-[65vh] w-auto transition-opacity duration-500 grayscale-[0.2]"
               style={{ maxWidth: "100%" }}
               crossOrigin="anonymous"
             />
@@ -265,8 +261,8 @@ export default function Result() {
         <div className="relative z-10 mt-8 flex justify-center">
           <div className="px-6 py-2.5 rounded-lg border border-neutral-200 bg-white/80 backdrop-blur-sm shadow-sm flex items-center gap-5">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-neutral-900" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-900">ROI Mapping</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-neutral-900 animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-900">Active ROI Mapping</span>
             </div>
             <div className="w-[1px] h-3 bg-neutral-200" />
             <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest italic">
@@ -279,14 +275,14 @@ export default function Result() {
       <style>{`
         .ReactCrop__crop-selection {
           border: 1px solid #171717 !important;
-          box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.7) !important;
+          box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.75) !important;
           border-radius: 2px !important;
         }
         .ReactCrop__drag-handle {
-          width: 8px !important;
-          height: 8px !important;
+          width: 6px !important;
+          height: 6px !important;
           background-color: #171717 !important;
-          border-radius: 1px !important;
+          border-radius: 0px !important;
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
