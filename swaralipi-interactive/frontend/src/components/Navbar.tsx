@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Music2, ScanLine, History } from "lucide-react";
+import { Music2, ScanLine, History, Binary } from "lucide-react";
 
 export default function Navbar() {
   const location = useLocation();
@@ -8,49 +8,75 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="border-b border-neutral-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+    <nav className="relative border-b border-neutral-200 bg-white/80 backdrop-blur-xl sticky top-0 z-50 overflow-hidden">
 
-        {/* Brand Section */}
+      {/* RULER GRADIENT BACKGROUND (Engineering Scale) */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-[6px] opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: `repeating-linear-gradient(90deg, #000 0, #000 1px, transparent 1px, transparent 10px), repeating-linear-gradient(90deg, #000 0, #000 1px, transparent 1px, transparent 40px)`,
+          backgroundSize: '100% 4px, 100% 6px'
+        }}
+      />
+
+      <div className="max-w-[1600px] mx-auto px-8 flex items-center justify-between h-16 relative z-10">
+
+        {/* Brand Section: Scientific Identification */}
         <Link
           to="/"
-          className="flex items-center gap-3 group transition-all"
+          className="flex items-center gap-4 group transition-all"
         >
-          <div className="w-9 h-9 bg-neutral-900 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-black transition-colors">
+          <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center shadow-lg group-hover:bg-black transition-all group-hover:scale-105 duration-500">
             <Music2 className="w-5 h-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-black uppercase tracking-tighter leading-none text-neutral-900">
-              Swaralipi <span className="text-neutral-400 font-medium">Interactive</span>
-            </span>
-            <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-[0.2em] leading-none mt-1.5">
-              Precision Analysis
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-black uppercase tracking-tight text-neutral-900">
+                Swaralipi <span className="text-neutral-400 font-light italic">Lab</span>
+              </span>
+              <div className="h-3 w-[1px] bg-neutral-200 mx-1" />
+              <span className="text-[10px] font-black text-amber-500 tracking-widest">v2.0</span>
+            </div>
+            <span className="text-[8px] font-black text-neutral-400 uppercase tracking-[0.4em] leading-none mt-1.5">
+              Neural Ingestion Terminal
             </span>
           </div>
         </Link>
 
-        {/* Navigation Links */}
-        <div className="flex items-center gap-1.5">
+        {/* Navigation Links: Modular Controls */}
+        <div className="flex items-center gap-2">
+
           <Link
             to="/scan"
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 ${isActive("/scan")
-                ? "bg-neutral-900 text-white shadow-lg shadow-neutral-200"
-                : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+            className={`group relative flex items-center gap-3 px-5 py-2 rounded-xl transition-all duration-500 ${isActive("/scan")
+                ? "bg-neutral-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
+                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 border border-transparent hover:border-neutral-100"
               }`}
           >
-            <ScanLine className={`w-4 h-4 ${isActive("/scan") ? "text-white" : "text-neutral-400"}`} />
-            <span className="hidden sm:inline">Initialize Scan</span>
+            <ScanLine className={`w-4 h-4 transition-transform group-hover:rotate-90 ${isActive("/scan") ? "text-white" : "text-neutral-400"}`} />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Ingest</span>
+
+            {/* Active Indicator Dot */}
+            {isActive("/scan") && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+            )}
           </Link>
+
+          <div className="w-[1px] h-4 bg-neutral-200 mx-2" />
 
           <Link
             to="/history"
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-300 ${isActive("/history")
-                ? "bg-neutral-900 text-white shadow-lg shadow-neutral-200"
-                : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+            className={`group relative flex items-center gap-3 px-5 py-2 rounded-xl transition-all duration-500 ${isActive("/history")
+                ? "bg-neutral-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
+                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 border border-transparent hover:border-neutral-100"
               }`}
           >
-            <History className={`w-4 h-4 ${isActive("/history") ? "text-white" : "text-neutral-400"}`} />
-            <span className="hidden sm:inline">Archive</span>
+            <Binary className={`w-4 h-4 ${isActive("/history") ? "text-white" : "text-neutral-400"}`} />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Archive</span>
+
+            {isActive("/history") && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+            )}
           </Link>
         </div>
 
