@@ -54,6 +54,13 @@ export interface AnalyzeResponse {
   class_name: string | null;
   hindi_symbol: string | null;
   confidence: number;
+  detections?: {
+    class_id: number;
+    class_name: string;
+    hindi_symbol: string;
+    confidence: number;
+    bbox: number[];
+  }[];
   timestamp?: string;
   message?: string;
 }
