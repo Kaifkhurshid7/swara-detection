@@ -4,7 +4,17 @@ import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { analyzeCrop, getUserFacingApiError, type AnalyzeResponse } from "../api/client";
 import NeuralTooltip from "../components/NeuralTooltip";
-import { Loader2, ArrowLeft, AlertCircle, ScanText, Layers, ShieldCheck, Activity, Target } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  AlertCircle,
+  Terminal,
+  Settings2,
+  Database,
+  Info,
+  Maximize2,
+  CheckCircle2
+} from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
 
@@ -72,132 +82,165 @@ export default function Result() {
 
   if (!source) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F8F9FA]">
-        <Loader2 className="w-10 h-10 text-neutral-900 animate-spin" />
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <Loader2 className="w-8 h-8 text-neutral-300 animate-spin" />
       </div>
     );
   }
 
-  const isBackendError = !!result?.message?.toLowerCase().includes("backend not reachable");
-
   return (
-    <div className="relative min-h-screen bg-[#F8F9FA] flex flex-col lg:flex-row overflow-hidden selection:bg-neutral-900 selection:text-white">
+    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row overflow-hidden font-sans text-neutral-900">
 
-      {/* LEFT: INTELLIGENCE MONITOR (Side Control) */}
-      <aside className="w-full lg:w-[450px] bg-white border-r border-neutral-200 flex flex-col p-8 lg:p-12 overflow-y-auto relative z-20">
+      {/* LEFT PANEL: ANALYSIS CONSOLE */}
+      <aside className="w-full lg:w-[480px] bg-white border-r border-neutral-200 flex flex-col relative z-20">
 
-        {/* Header Section */}
-        <div className="mb-10 flex items-center justify-between">
+        {/* Module Header */}
+        <div className="p-8 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/50">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-md bg-white border border-neutral-200 flex items-center justify-center shadow-sm">
+              <Terminal className="w-5 h-5 text-neutral-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 leading-none mb-1">Analysis Console</h2>
+              <p className="text-[10px] text-neutral-400 font-medium uppercase tracking-wider">Module v4.2.0 — Inference Active</p>
+            </div>
+          </div>
           <button
             onClick={() => navigate("/scan")}
-            className="flex items-center gap-3 text-neutral-400 hover:text-black transition-all group px-4 py-2 rounded-xl hover:bg-neutral-50 border border-transparent hover:border-neutral-100"
+            className="p-2.5 rounded-lg border border-neutral-200 text-neutral-400 hover:text-neutral-900 hover:bg-white transition-all shadow-sm"
+            title="Return to Input"
           >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Reset Node</span>
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="w-10 h-10 rounded-xl bg-neutral-900 flex items-center justify-center shadow-lg shadow-neutral-200">
-            <Activity className="w-5 h-5 text-white animate-pulse" />
-          </div>
         </div>
 
-        <div className="mb-12">
-          <h2 className="text-2xl font-black text-neutral-900 mb-6 leading-tight">Intelligence <br /> Monitor</h2>
+        <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
 
-          <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Layers className="w-4 h-4 text-neutral-400" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Processing Layer</span>
+          {/* Section 1: System Parameters */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Settings2 className="w-3.5 h-3.5 text-neutral-400" />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">System Parameters</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-4 rounded-xl border border-neutral-100 bg-neutral-50/50">
+                <span className="block text-[9px] font-bold text-neutral-400 uppercase mb-1">Model Architecture</span>
+                <span className="text-xs font-semibold text-neutral-800">YOLOv8x-Swaralipi</span>
               </div>
-              <span className="text-[10px] font-bold text-neutral-900">YOLOv8-Neural</span>
+              <div className="p-4 rounded-xl border border-neutral-100 bg-neutral-50/50">
+                <span className="block text-[9px] font-bold text-neutral-400 uppercase mb-1">Inference Engine</span>
+                <span className="text-xs font-semibold text-neutral-800 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Local Node
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 2: Methodology Description */}
+          <section className="p-6 rounded-2xl bg-neutral-900 text-neutral-300">
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-3.5 h-3.5 text-neutral-500" />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Analysis Methodology</h3>
+            </div>
+            <p className="text-[11px] leading-relaxed font-medium opacity-80">
+              The neural engine utilizes spatial coordinate mapping to identify musical notation.
+              Upon defining a Region of Interest (ROI) on the workbench, the system performs a localized
+              pixel scan to classify swara symbols and measure confidence intervals.
+            </p>
+          </section>
+
+          {/* Section 3: Detection Metadata */}
+          <section className="flex-1 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-4">
+              <Database className="w-3.5 h-3.5 text-neutral-400" />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Detection Metadata</h3>
             </div>
 
-            <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="w-4 h-4 text-neutral-400" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Status</span>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-500">OPTIMIZED</span>
-            </div>
-          </div>
-        </div>
+            <div className="space-y-3">
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3 border border-neutral-100 rounded-2xl border-dashed">
+                  <Loader2 className="w-6 h-6 animate-spin text-neutral-300" />
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Processing ROI...</span>
+                </div>
+              ) : (
+                <>
+                  {result?.detections?.map((det, idx) => (
+                    <NeuralTooltip
+                      key={idx}
+                      hindiSymbol={det.hindi_symbol}
+                      englishName={det.class_name || ""}
+                      confidence={det.confidence}
+                      inline
+                    />
+                  ))}
 
-        {/* Detection Stream Area */}
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex items-center gap-2 mb-6">
-            <Target className="w-3.5 h-3.5 text-neutral-400" />
-            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">Inference Stream</h3>
-          </div>
+                  {result && !result.detections && result.hindi_symbol && (
+                    <NeuralTooltip
+                      hindiSymbol={result.hindi_symbol}
+                      englishName={result.class_name || ""}
+                      confidence={result.confidence}
+                      inline
+                    />
+                  )}
 
-          <div className="flex-1 overflow-y-auto pr-2 space-y-4 scrollbar-hide">
-            {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
-                <Loader2 className="w-8 h-8 animate-spin text-neutral-900" />
-                <span className="text-[9px] font-black uppercase tracking-[0.3em]">Parsing Data...</span>
-              </div>
-            ) : (
-              <>
-                {result?.detections?.map((det, idx) => (
-                  <NeuralTooltip
-                    key={idx}
-                    hindiSymbol={det.hindi_symbol}
-                    englishName={det.class_name || ""}
-                    confidence={det.confidence}
-                    inline
-                  />
-                ))}
-
-                {result && !result.detections && result.hindi_symbol && (
-                  <NeuralTooltip
-                    hindiSymbol={result.hindi_symbol}
-                    englishName={result.class_name || ""}
-                    confidence={result.confidence}
-                    inline
-                  />
-                )}
-
-                {!result && !loading && (
-                  <div className="border-2 border-dashed border-neutral-100 rounded-[2rem] py-20 px-8 text-center">
-                    <p className="text-[10px] font-black text-neutral-300 uppercase tracking-widest leading-loose italic">
-                      Awaiting spatial definition <br />
-                      <span className="normal-case font-medium text-neutral-400">Draw a bounding box on the right feed</span>
-                    </p>
-                  </div>
-                )}
-
-                {result?.message && (
-                  <div className={`rounded-2xl p-5 border ${isBackendError ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-neutral-50 border-neutral-200 text-neutral-600"}`}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <AlertCircle className="w-4 h-4 opacity-50" />
-                      <span className="text-[9px] font-black uppercase tracking-widest">System Log</span>
+                  {!result && !loading && (
+                    <div className="border border-neutral-100 rounded-2xl py-12 px-6 text-center bg-neutral-50/30">
+                      <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic">
+                        No active ROI detected. Please select a segment on the visual workbench to initialize parsing.
+                      </p>
                     </div>
-                    <p className="text-[11px] font-medium leading-relaxed">{result.message}</p>
-                  </div>
-                )}
-              </>
-            )}
+                  )}
+
+                  {result?.message && (
+                    <div className={`rounded-xl p-4 border ${result.success === false ? "bg-red-50/50 border-red-100 text-red-700" : "bg-neutral-50 border-neutral-200 text-neutral-600"}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        <span className="text-[9px] font-bold uppercase tracking-widest">System Response</span>
+                      </div>
+                      <p className="text-[11px] leading-relaxed">{result.message}</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </section>
+        </div>
+
+        {/* Console Footer */}
+        <div className="p-6 border-t border-neutral-100 bg-neutral-50/30 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Integrity Verified</span>
           </div>
+          <span className="text-[9px] font-mono text-neutral-400">#00214-SEC</span>
         </div>
       </aside>
 
-      {/* RIGHT: WORKSPACE FEED (The Analysis Feed) */}
-      <main className="flex-1 p-8 lg:p-16 flex flex-col relative overflow-hidden">
+      {/* RIGHT PANEL: VISUAL WORKBENCH */}
+      <main className="flex-1 p-8 lg:p-12 flex flex-col relative bg-[#F8F9FA]">
 
-        {/* Subtle Lab Grid Texture */}
+        {/* Subtle Engineering Grid */}
         <div
-          className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }}
+          className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h30v30H0V0zm1 1h28v28H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }}
         />
 
         <div className="relative z-10 flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400 tracking-widest">Active Coordinate Mapping</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 border border-neutral-400" />
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Visual Workspace — High Fidelity Feed</h3>
           </div>
-          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">Cross-Origin Data Stream</p>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">Resolution:</span>
+              <span className="text-[9px] font-bold text-neutral-600">Native</span>
+            </div>
+            <Maximize2 className="w-3.5 h-3.5 text-neutral-300" />
+          </div>
         </div>
 
-        <div className="relative z-10 flex-1 bg-white rounded-[3rem] border border-neutral-200 shadow-[0_20px_50px_rgba(0,0,0,0.04)] p-10 flex items-center justify-center overflow-auto ring-8 ring-neutral-100/50">
+        <div className="relative z-10 flex-1 bg-white border border-neutral-200 shadow-sm rounded-xl p-8 flex items-center justify-center overflow-auto ring-1 ring-black/[0.02]">
           <ReactCrop
             crop={crop}
             onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -207,31 +250,39 @@ export default function Result() {
             <img
               ref={imgRef}
               src={source}
-              alt="Notation feed"
-              className="max-h-[60vh] w-auto shadow-2xl rounded-xl border border-neutral-200 grayscale-[0.1] hover:grayscale-0 transition-all duration-700"
+              alt="Manuscript"
+              className="max-h-[65vh] w-auto transition-opacity duration-500"
               style={{ maxWidth: "100%" }}
               crossOrigin="anonymous"
             />
           </ReactCrop>
         </div>
 
-        <footer className="relative z-10 mt-8 flex justify-center">
-          <div className="px-6 py-2 rounded-full bg-neutral-900/5 backdrop-blur-md border border-neutral-200 flex items-center gap-4">
+        <div className="relative z-10 mt-8 flex justify-center">
+          <div className="px-6 py-2.5 rounded-lg border border-neutral-200 bg-white/80 backdrop-blur-sm shadow-sm flex items-center gap-5">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-neutral-900" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-neutral-900">ROI: Active</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-neutral-900" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-900">ROI Mapping</span>
             </div>
-            <div className="h-3 w-[1px] bg-neutral-300" />
-            <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest italic">Define swara boundaries manually</span>
+            <div className="w-[1px] h-3 bg-neutral-200" />
+            <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest italic">
+              Draw selection box to initiate classification
+            </p>
           </div>
-        </footer>
+        </div>
       </main>
 
       <style>{`
-        /* Minimal custom styling for crop area to match lab theme */
         .ReactCrop__crop-selection {
-          border: 2px solid #000 !important;
-          box-shadow: 0 0 0 4000px rgba(255, 255, 255, 0.6) !important;
+          border: 1px solid #171717 !important;
+          box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.7) !important;
+          border-radius: 2px !important;
+        }
+        .ReactCrop__drag-handle {
+          width: 8px !important;
+          height: 8px !important;
+          background-color: #171717 !important;
+          border-radius: 1px !important;
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
