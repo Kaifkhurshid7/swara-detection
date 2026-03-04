@@ -68,7 +68,7 @@ def _get_model():
         _model = YOLO(str(MODEL_PATH))
     return _model
 
-def run_inference(base64_image: str, conf_threshold: float = 0.45):
+def run_inference(base64_image: str, conf_threshold: float = 0.35):
     """
     Decode base64 image, run YOLO, return list of detections: 
     [{"class_id": int, "confidence": float, "bbox": [x1, y1, x2, y2]}, ...]
@@ -86,8 +86,14 @@ def run_inference(base64_image: str, conf_threshold: float = 0.45):
     try:
         img_bytes = io.BytesIO(raw)
         image = Image.open(img_bytes).convert("RGB")
-        # For full-line detection, we might want to skip tight cropping or handle it carefully
-        # For now, let's keep the image as is to preserve relative positions of multiple symbols
+        
+        # Add slight padding (e.g., 20px) to help YOLO recognize tight crops better
+        # Especially helpful for middle-octave swaras like "Pa"
+        padding = 20
+        new_size = (image.width + padding * 2, image.height + padding * 2)
+        padded_image = Image.new("RGB", new_size, (255, 255, 255))
+        padded_image.paste(image, (padding, padding))
+        image = padded_image
     except Exception as e:
         print(f"Image parsing error: {e}")
         return []
