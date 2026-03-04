@@ -103,8 +103,8 @@ export default function Result() {
               <Terminal className="w-5 h-5 text-neutral-600" />
             </div>
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 leading-none mb-1">Analysis Console</h2>
-              <p className="text-[10px] text-neutral-400 font-medium uppercase tracking-wider">Module v4.2.0 — Inference Active</p>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 leading-none mb-1">Analysis</h2>
+              <p className="text-[10px] text-neutral-400 font-medium uppercase tracking-wider">Model YOLOv8 — </p>
             </div>
           </div>
           <button
@@ -125,24 +125,24 @@ export default function Result() {
             </div>
 
             <div className="relative space-y-4">
-              {/* Step 1: Spatial Quantization */}
-              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${!crop ? 'bg-neutral-900 border-neutral-800 shadow-xl' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${!crop ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
+              {/* Step 1: Spatial Selection */}
+              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${!crop ? 'bg-white border-neutral-200 shadow-sm' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${!crop ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
                 <div className="flex-1">
-                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${!crop ? 'text-white' : 'text-neutral-500'}`}>Spatial Selection</h4>
-                  <p className={`text-[11px] leading-relaxed font-medium ${!crop ? 'text-neutral-400' : 'text-neutral-400'}`}>Define the coordinate boundaries for notation extraction on the workforce feed.</p>
+                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${!crop ? 'text-neutral-900' : 'text-neutral-500'}`}>Spatial Selection</h4>
+                  <p className={`text-[11px] leading-relaxed font-medium ${!crop ? 'text-neutral-600' : 'text-neutral-400'}`}>Define the coordinate boundaries for notation extraction on the workforce feed.</p>
                 </div>
-                {crop ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : <MousePointer2 className="w-4 h-4 text-white mt-1 animate-pulse" />}
+                {crop ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : <MousePointer2 className="w-4 h-4 text-neutral-900 mt-1 animate-pulse" />}
               </div>
 
               {/* Step 2: Neural Synthesis */}
-              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${crop && !result ? 'bg-neutral-900 border-neutral-800 shadow-xl' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${crop && !result ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
+              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${crop && !result ? 'bg-white border-neutral-200 shadow-sm' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${crop && !result ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
                 <div className="flex-1">
-                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${crop && !result ? 'text-white' : 'text-neutral-500'}`}>Neural Synthesis</h4>
-                  <p className={`text-[11px] leading-relaxed font-medium ${crop && !result ? 'text-neutral-400' : 'text-neutral-400'}`}>Execute localized weight mapping and swara classification via YOLOv8 kernel.</p>
+                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${crop && !result ? 'text-neutral-900' : 'text-neutral-500'}`}>Neural Synthesis</h4>
+                  <p className={`text-[11px] leading-relaxed font-medium ${crop && !result ? 'text-neutral-600' : 'text-neutral-400'}`}>Execute localized weight mapping and swara classification via YOLOv8 kernel.</p>
                 </div>
-                {loading ? <Loader2 className="w-5 h-5 text-white mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : null}
+                {loading ? <Loader2 className="w-5 h-5 text-neutral-900 mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : null}
               </div>
             </div>
           </section>
@@ -151,7 +151,7 @@ export default function Result() {
           <section className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-6">
               <Database className="w-3.5 h-3.5 text-neutral-400" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Neural Logic Stream</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Predicted Swara</h3>
             </div>
 
             <div className="space-y-4">

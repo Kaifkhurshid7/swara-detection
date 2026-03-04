@@ -32,10 +32,10 @@ export default function NeuralTooltip({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-neutral-100 text-neutral-900">
+          {/* <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-neutral-100 text-neutral-900">
             <Zap className="w-3 h-3 fill-current" />
-          </div>
-          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400">Neural Insight</span>
+          </div> */}
+          {/* <span className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400">Neural Insight</span> */}
         </div>
         {onClose && (
           <button
@@ -61,7 +61,7 @@ export default function NeuralTooltip({
       {/* Confidence Module */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-neutral-400">
-          <span>Reliability</span>
+          <span>Accuracy</span>
           <span className="text-neutral-900">{pct}%</span>
         </div>
         <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
