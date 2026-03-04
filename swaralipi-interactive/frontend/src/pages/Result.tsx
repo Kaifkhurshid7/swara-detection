@@ -115,53 +115,53 @@ export default function Result() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto p-8 space-y-12 scrollbar-hide">
 
-          {/* DIF SECTION: INTERACTIVE STEPS */}
-          <section className="space-y-4">
+          {/* OPERATION CONSOLE: INTERACTIVE PIPELINE */}
+          <section className="space-y-6">
             <div className="flex items-center gap-2 mb-2">
               <Layers className="w-3.5 h-3.5 text-neutral-400" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Operation Sequence</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Execution Pipeline</h3>
             </div>
 
-            <div className="relative space-y-3">
-              {/* Step 1: Define ROI */}
-              <div className={`flex items-start gap-4 p-5 rounded-xl border transition-all duration-500 ${!crop ? 'bg-neutral-900 border-neutral-800 shadow-xl shadow-neutral-200' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${!crop ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
+            <div className="relative space-y-4">
+              {/* Step 1: Spatial Quantization */}
+              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${!crop ? 'bg-neutral-900 border-neutral-800 shadow-xl' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${!crop ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
                 <div className="flex-1">
-                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${!crop ? 'text-white' : 'text-neutral-500'}`}>Region Definition</h4>
-                  <p className={`text-[10px] leading-relaxed ${!crop ? 'text-neutral-400' : 'text-neutral-400'}`}>Identify and select the specific swara notation on the workbench feed.</p>
+                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${!crop ? 'text-white' : 'text-neutral-500'}`}>Spatial Selection</h4>
+                  <p className={`text-[11px] leading-relaxed font-medium ${!crop ? 'text-neutral-400' : 'text-neutral-400'}`}>Define the coordinate boundaries for notation extraction on the workforce feed.</p>
                 </div>
-                {crop ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-1" /> : <MousePointer2 className="w-4 h-4 text-white mt-1 animate-pulse" />}
+                {crop ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : <MousePointer2 className="w-4 h-4 text-white mt-1 animate-pulse" />}
               </div>
 
-              {/* Step 2: Inference Pipeline */}
-              <div className={`flex items-start gap-4 p-5 rounded-xl border transition-all duration-500 ${crop && !result ? 'bg-neutral-900 border-neutral-800 shadow-xl' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${crop && !result ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
+              {/* Step 2: Neural Synthesis */}
+              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${crop && !result ? 'bg-neutral-900 border-neutral-800 shadow-xl' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${crop && !result ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
                 <div className="flex-1">
-                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${crop && !result ? 'text-white' : 'text-neutral-500'}`}>Neural Parsing</h4>
-                  <p className={`text-[10px] leading-relaxed ${crop && !result ? 'text-neutral-400' : 'text-neutral-400'}`}>Execute localized pattern recognition via YOLOv8 inference architecture.</p>
+                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${crop && !result ? 'text-white' : 'text-neutral-500'}`}>Neural Synthesis</h4>
+                  <p className={`text-[11px] leading-relaxed font-medium ${crop && !result ? 'text-neutral-400' : 'text-neutral-400'}`}>Execute localized weight mapping and swara classification via YOLOv8 kernel.</p>
                 </div>
-                {loading ? <Loader2 className="w-4 h-4 text-white mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-1" /> : null}
+                {loading ? <Loader2 className="w-5 h-5 text-white mt-1 animate-spin" /> : (result || resultsReady) ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : null}
               </div>
             </div>
           </section>
 
-          {/* RESULTS SECTION: LIVE METADATA */}
+          {/* TELEMETRY CONSOLE: LIVE STREAM */}
           <section className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-6">
               <Database className="w-3.5 h-3.5 text-neutral-400" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Live Detection Stream</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Neural Logic Stream</h3>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-3 border border-neutral-100 rounded-2xl border-dashed bg-neutral-50/50">
-                  <Fingerprint className="w-8 h-8 text-neutral-200 animate-pulse" />
-                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Scanning Metadata...</span>
+                <div className="flex flex-col items-center justify-center py-20 gap-4 border-2 border-dashed border-neutral-100 rounded-[2.5rem] bg-neutral-50/50">
+                  <Fingerprint className="w-10 h-10 text-neutral-200 animate-pulse" />
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.4em]">Decoding ROI Layer...</span>
                 </div>
               ) : result ? (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
                   {result.detections && result.detections.length > 0 ? (
                     <NeuralTooltip
                       hindiSymbol={result.detections[0].hindi_symbol}
@@ -176,37 +176,48 @@ export default function Result() {
                       confidence={result.confidence}
                       inline
                     />
-                  ) : null}
+                  ) : (
+                    <div className="border border-neutral-100 rounded-3xl py-12 px-8 text-center bg-neutral-50/50">
+                      <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic uppercase tracking-widest">
+                        Zero patterns detected <br />
+                        <span className="normal-case opacity-60">Adjust the ROI to include black notation ink</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="border border-neutral-100 rounded-2xl py-12 px-6 text-center bg-neutral-50/30">
-                  <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic">
-                    Awaiting ROI definition. <br />
-                    Select a manuscript segment to initiate the pipeline.
+                <div className="border-2 border-dashed border-neutral-100 rounded-[2.5rem] py-20 px-8 text-center bg-neutral-50/30">
+                  <p className="text-[11px] font-bold text-neutral-300 uppercase tracking-[0.2em] leading-loose italic">
+                    Awaiting Target Definition <br />
+                    <span className="normal-case font-medium text-neutral-400">Initialize spatial selection on the workbench</span>
                   </p>
                 </div>
               )}
 
-              {result?.message && (
-                <div className={`rounded-xl p-4 border mt-4 ${result.success === false ? "bg-red-50/50 border-red-100 text-red-700" : "bg-neutral-50 border-neutral-200 text-neutral-600"}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Protocol Response</span>
+              {result?.message && !loading && (
+                <div className={`rounded-2xl p-6 border mt-6 ${result.success === false ? "bg-red-50/50 border-red-100 text-red-700" : "bg-neutral-50 border-neutral-100 text-neutral-600"}`}>
+                  <div className="flex items-center gap-3 mb-2 opacity-60">
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.3em]">Protocol Log</span>
                   </div>
-                  <p className="text-[11px] leading-relaxed font-mono opacity-80">{result.message}</p>
+                  <p className="text-[11px] leading-relaxed font-medium font-mono tracking-tight">{result.message}</p>
                 </div>
               )}
             </div>
           </section>
         </div>
 
-        {/* Console Footer */}
-        <div className="p-6 border-t border-neutral-100 bg-neutral-50/30 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Node Integrity: 100%</span>
+        {/* System Terminal Footer */}
+        <div className="p-8 border-t border-neutral-100 bg-neutral-50/50 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-neutral-900 shadow-[0_0_8px_rgba(0,0,0,0.2)]" />
+            <span className="text-[10px] font-black text-neutral-900 uppercase tracking-[0.3em]">System: Optimal</span>
           </div>
-          <span className="text-[9px] font-mono text-neutral-400 uppercase">Latency: Optmized</span>
+          <div className="flex items-center gap-4 text-[9px] font-mono text-neutral-400">
+            <span>LTC: 4ms</span>
+            <span className="opacity-40">|</span>
+            <span>ID: Swara-GPT-v2</span>
+          </div>
         </div>
       </aside>
 
