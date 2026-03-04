@@ -280,7 +280,7 @@ export default function Result() {
 
       <style>{`
         .ReactCrop__crop-selection {
-          border: 1px solid #171717 !important;
+          border: none !important;
           box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.8) !important;
           border-radius: 4px !important;
         }
