@@ -50,9 +50,13 @@ def analyze(req: AnalyzeRequest):
         raise HTTPException(status_code=400, detail=f"Invalid image data: {e}")
 
     try:
-        # run_inference now returns a list of detections: [{"class_id": int, "confidence": float, "bbox": [...]}, ...]
+        print(f"DEBUG: Calling run_inference with b64 length {len(b64)}")
         detections_raw = run_inference(b64)
+        print(f"DEBUG: run_inference returned {len(detections_raw)} detections")
     except Exception as e:
+        print(f"DEBUG: Inference failed with error: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Inference failed: {e}")
 
     if not detections_raw:
