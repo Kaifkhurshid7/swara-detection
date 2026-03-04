@@ -3,16 +3,96 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-neutral-50 text-neutral-900 antialiased;
+  :root {
+    /* Premium Color Palette */
+    --accent-primary: 15, 15, 15;
+    --accent-secondary: 60, 60, 60;
+    --glass-background: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --neural-glow: 0 0 20px rgba(0, 0, 0, 0.05);
+
+    /* Surface Colors */
+    --bg-main: #fcfcfc;
+    --surface-elevated: #ffffff;
+
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
   }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900 antialiased font-body;
+    background-color: var(--bg-main);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-black/[0.03] shadow-[0_8px_32px_rgba(0, 0, 0, 0.02)];
+  }
+
+  .neural-panel {
+    @apply rounded-[2.5rem] bg-white border border-neutral-100 shadow-sm relative overflow-hidden;
+  }
+
+  .premium-btn {
+    @apply px-6 py-3 rounded-2xl font-bold uppercase tracking-[0.1em] text-[11px] transition-all duration-300;
+  }
+
+  .premium-btn-primary {
+    @apply bg-neutral-900 text-white hover:bg-black hover:shadow-lg hover:shadow-neutral-200 active:scale-[0.98];
+  }
+
+  .premium-btn-secondary {
+    @apply bg-white text-neutral-900 border border-neutral-200 hover:border-neutral-900 active:scale-[0.98];
+  }
+}
+
+/* Animations */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-premium {
+  animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-200 rounded-full hover:bg-neutral-300 transition-colors;
 }
 
 /* react-image-crop – clean black outline for light theme */
 .ReactCrop__crop-selection {
-  border: 2px solid #0a0a0a;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+  border: 1.5px solid #000 !important;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4) !important;
 }
+
 .ReactCrop__drag-handle::after {
-  background: #0a0a0a;
+  background: #000 !important;
+  border-radius: 4px;
 }
