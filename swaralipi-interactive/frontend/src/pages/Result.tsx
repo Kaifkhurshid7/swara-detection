@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   MousePointer2,
   Layers,
-  Fingerprint
+  Fingerprint,
+  Crosshair
 } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
@@ -90,9 +91,9 @@ export default function Result() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row overflow-hidden font-sans text-neutral-900">
+    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row overflow-hidden font-sans text-neutral-900 selection:bg-neutral-900 selection:text-white">
 
-      {/* LEFT PANEL: ANALYSIS CONSOLE */}
+      {/* LEFT PANEL: SYSTEM CONSOLE */}
       <aside className="w-full lg:w-[480px] bg-white border-r border-neutral-200 flex flex-col relative z-20">
 
         {/* Module Header */}
@@ -114,9 +115,9 @@ export default function Result() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
 
-          {/* SECTION 1: DYNAMIC OPERATION GUIDE */}
+          {/* DIF SECTION: INTERACTIVE STEPS */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <Layers className="w-3.5 h-3.5 text-neutral-400" />
@@ -124,29 +125,29 @@ export default function Result() {
             </div>
 
             <div className="relative space-y-3">
-              <div className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${!crop ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-100 opacity-50'}`}>
+              {/* Step 1: Define ROI */}
+              <div className={`flex items-start gap-4 p-5 rounded-xl border transition-all duration-500 ${!crop ? 'bg-neutral-900 border-neutral-800 shadow-xl shadow-neutral-200' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${!crop ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
-                <div>
-                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${!crop ? 'text-white' : 'text-neutral-500'}`}>Define ROI</h4>
-                  <p className={`text-[10px] leading-relaxed ${!crop ? 'text-neutral-400' : 'text-neutral-300'}`}>Click and drag on the workbench to highlight a swara symbol.</p>
+                <div className="flex-1">
+                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${!crop ? 'text-white' : 'text-neutral-500'}`}>Region Definition</h4>
+                  <p className={`text-[10px] leading-relaxed ${!crop ? 'text-neutral-400' : 'text-neutral-400'}`}>Identify and select the specific swara notation on the workbench feed.</p>
                 </div>
-                {!crop && <MousePointer2 className="w-4 h-4 text-white ml-auto animate-bounce" />}
-                {crop && <CheckCircle2 className="w-4 h-4 text-emerald-500 ml-auto" />}
+                {crop ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-1" /> : <MousePointer2 className="w-4 h-4 text-white mt-1 animate-pulse" />}
               </div>
 
-              <div className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${crop && loading ? 'bg-neutral-900 border-neutral-800' : 'bg-neutral-50 border-neutral-100 opacity-50'}`}>
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${crop && loading ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
-                <div>
-                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${crop && loading ? 'text-white' : 'text-neutral-500'}`}>Neural Parsing</h4>
-                  <p className={`text-[10px] leading-relaxed ${crop && loading ? 'text-neutral-400' : 'text-neutral-300'}`}>System executes localized coordinate scan for pattern recognition.</p>
+              {/* Step 2: Inference Pipeline */}
+              <div className={`flex items-start gap-4 p-5 rounded-xl border transition-all duration-500 ${crop && !result ? 'bg-neutral-900 border-neutral-800 shadow-xl' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${crop && !result ? 'bg-white text-black' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
+                <div className="flex-1">
+                  <h4 className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${crop && !result ? 'text-white' : 'text-neutral-500'}`}>Neural Parsing</h4>
+                  <p className={`text-[10px] leading-relaxed ${crop && !result ? 'text-neutral-400' : 'text-neutral-400'}`}>Execute localized pattern recognition via YOLOv8 inference architecture.</p>
                 </div>
-                {loading && <Loader2 className="w-4 h-4 text-white ml-auto animate-spin" />}
-                {result && <CheckCircle2 className="w-4 h-4 text-emerald-500 ml-auto" />}
+                {loading ? <Loader2 className="w-4 h-4 text-white mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-1" /> : null}
               </div>
             </div>
           </section>
 
-          {/* SECTION 2: DETECTION METADATA (Active Results) */}
+          {/* RESULTS SECTION: LIVE METADATA */}
           <section className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-4">
               <Database className="w-3.5 h-3.5 text-neutral-400" />
@@ -155,52 +156,45 @@ export default function Result() {
 
             <div className="space-y-3">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-3 border border-neutral-100 rounded-2xl border-dashed bg-neutral-50/30">
+                <div className="flex flex-col items-center justify-center py-12 gap-3 border border-neutral-100 rounded-2xl border-dashed bg-neutral-50/50">
                   <Fingerprint className="w-8 h-8 text-neutral-200 animate-pulse" />
-                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Scanning ROI...</span>
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Scanning Metadata...</span>
                 </div>
-              ) : (
-                <>
-                  {result?.detections && result.detections.length > 0 ? (
-                    (() => {
-                      const topResult = [...result.detections].sort((a, b) => b.confidence - a.confidence)[0];
-                      return (
-                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                          <NeuralTooltip
-                            hindiSymbol={topResult.hindi_symbol}
-                            englishName={topResult.class_name || ""}
-                            confidence={topResult.confidence}
-                            inline
-                          />
-                        </div>
-                      );
-                    })()
-                  ) : result && !result.detections && result.hindi_symbol ? (
+              ) : result ? (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+                  {result.detections && result.detections.length > 0 ? (
+                    <NeuralTooltip
+                      hindiSymbol={result.detections[0].hindi_symbol}
+                      englishName={result.detections[0].class_name || ""}
+                      confidence={result.detections[0].confidence}
+                      inline
+                    />
+                  ) : result.hindi_symbol ? (
                     <NeuralTooltip
                       hindiSymbol={result.hindi_symbol}
                       englishName={result.class_name || ""}
                       confidence={result.confidence}
                       inline
                     />
-                  ) : (
-                    <div className="border border-neutral-100 rounded-2xl py-12 px-6 text-center bg-neutral-50/30">
-                      <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic">
-                        Inference pipeline idle. <br />
-                        Highlight a manuscript segment to begin.
-                      </p>
-                    </div>
-                  )}
+                  ) : null}
+                </div>
+              ) : (
+                <div className="border border-neutral-100 rounded-2xl py-12 px-6 text-center bg-neutral-50/30">
+                  <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic">
+                    Awaiting ROI definition. <br />
+                    Select a manuscript segment to initiate the pipeline.
+                  </p>
+                </div>
+              )}
 
-                  {result?.message && (
-                    <div className={`rounded-xl p-4 border ${result.success === false ? "bg-red-50/50 border-red-100 text-red-700" : "bg-neutral-50 border-neutral-200 text-neutral-600"}`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <AlertCircle className="w-3.5 h-3.5" />
-                        <span className="text-[9px] font-bold uppercase tracking-widest">Protocol Notice</span>
-                      </div>
-                      <p className="text-[11px] leading-relaxed font-mono">{result.message}</p>
-                    </div>
-                  )}
-                </>
+              {result?.message && (
+                <div className={`rounded-xl p-4 border mt-4 ${result.success === false ? "bg-red-50/50 border-red-100 text-red-700" : "bg-neutral-50 border-neutral-200 text-neutral-600"}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest">Protocol Response</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed font-mono opacity-80">{result.message}</p>
+                </div>
               )}
             </div>
           </section>
@@ -210,37 +204,37 @@ export default function Result() {
         <div className="p-6 border-t border-neutral-100 bg-neutral-50/30 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Node Verified</span>
+            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Node Integrity: 100%</span>
           </div>
-          <span className="text-[9px] font-mono text-neutral-400 tracking-tighter opacity-50">LATENCY: 42MS</span>
+          <span className="text-[9px] font-mono text-neutral-400 uppercase">Latency: Optmized</span>
         </div>
       </aside>
 
       {/* RIGHT PANEL: VISUAL WORKBENCH */}
       <main className="flex-1 p-8 lg:p-12 flex flex-col relative bg-[#F8F9FA]">
 
-        <div
-          className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h30v30H0V0zm1 1h28v28H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }}
-        />
+        {/* Engineering Grid Layer */}
+        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} />
 
         <div className="relative z-10 flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-neutral-300 border border-neutral-400" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Digital Workbench — Optical Mapping</h3>
+            <div className="w-2 h-2 rounded-full bg-neutral-400 shadow-sm" />
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Digital Workspace — Optic Mapping Feed</h3>
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">Coord Mapping:</span>
-              <span className="text-[9px] font-mono text-neutral-600">
-                {crop ? `${Math.round(crop.x)},${Math.round(crop.y)}` : 'IDLE'}
+              <Crosshair className="w-3 h-3 text-neutral-300" />
+              <span className="text-[9px] font-mono text-neutral-500">
+                {crop ? `X:${Math.round(crop.x)} Y:${Math.round(crop.y)}` : '0.00, 0.00'}
               </span>
             </div>
-            <Maximize2 className="w-3.5 h-3.5 text-neutral-300" />
+            <Maximize2 className="w-3.5 h-3.5 text-neutral-300 hover:text-neutral-900 cursor-pointer transition-colors" />
           </div>
         </div>
 
-        <div className="relative z-10 flex-1 bg-white border border-neutral-200 shadow-sm rounded-xl p-8 flex items-center justify-center overflow-auto ring-1 ring-black/[0.02]">
+        {/* Image Container */}
+        <div className="relative z-10 flex-1 bg-white border border-neutral-200 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-2xl p-8 flex items-center justify-center overflow-auto">
           <ReactCrop
             crop={crop}
             onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -250,23 +244,24 @@ export default function Result() {
             <img
               ref={imgRef}
               src={source}
-              alt="Manuscript"
-              className="max-h-[65vh] w-auto transition-opacity duration-500 grayscale-[0.2]"
+              alt="Notation Feed"
+              className="max-h-[68vh] w-auto transition-all duration-700 grayscale-[0.1]"
               style={{ maxWidth: "100%" }}
               crossOrigin="anonymous"
             />
           </ReactCrop>
         </div>
 
+        {/* Interaction Bar */}
         <div className="relative z-10 mt-8 flex justify-center">
-          <div className="px-6 py-2.5 rounded-lg border border-neutral-200 bg-white/80 backdrop-blur-sm shadow-sm flex items-center gap-5">
+          <div className="px-6 py-3 rounded-xl border border-neutral-200 bg-white shadow-sm flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-neutral-900 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-900">Active ROI Mapping</span>
+              <div className={`w-2 h-2 rounded-full ${loading ? 'bg-amber-500 animate-pulse' : 'bg-neutral-900'}`} />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-900">ROI: {crop ? 'Active' : 'Awaiting'}</span>
             </div>
-            <div className="w-[1px] h-3 bg-neutral-200" />
-            <p className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest italic">
-              Draw selection box to initiate classification
+            <div className="w-[1px] h-4 bg-neutral-100" />
+            <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-[0.15em] italic">
+              Define coordinate boundaries to trigger inference engine
             </p>
           </div>
         </div>
@@ -275,14 +270,14 @@ export default function Result() {
       <style>{`
         .ReactCrop__crop-selection {
           border: 1px solid #171717 !important;
-          box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.75) !important;
-          border-radius: 2px !important;
+          box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.8) !important;
+          border-radius: 4px !important;
         }
         .ReactCrop__drag-handle {
-          width: 6px !important;
-          height: 6px !important;
+          width: 7px !important;
+          height: 7px !important;
           background-color: #171717 !important;
-          border-radius: 0px !important;
+          border-radius: 50% !important;
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
