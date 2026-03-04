@@ -50,16 +50,11 @@ def analyze(req: AnalyzeRequest):
         raise HTTPException(status_code=400, detail=f"Invalid image data: {e}")
 
     try:
-        print(f"DEBUG: Calling run_inference with b64 length {len(b64)}")
-        detections_raw = run_inference(b64)
-        print(f"DEBUG: run_inference returned {len(detections_raw)} detections")
+        cls_id, conf = run_inference(b64)
     except Exception as e:
-        print(f"DEBUG: Inference failed with error: {e}")
-        import traceback
-        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Inference failed: {e}")
 
-    if not detections_raw:
+    if cls_id is None:
         return {
             "success": True,
             "class_id": None,
@@ -70,36 +65,28 @@ def analyze(req: AnalyzeRequest):
             "message": "No symbol detected",
         }
 
-    # Process all detections
-    processed_detections = []
-    for det in detections_raw:
-        cls_id = det["class_id"]
-        conf = det["confidence"]
-        info = get_swara_info(cls_id)
-        processed_detections.append({
-            "class_id": cls_id,
-            "class_name": info["english_name"],
-            "hindi_symbol": info["hindi_symbol"],
-            "confidence": round(conf, 4),
-            "bbox": det["bbox"]
-        })
-
-    # For backward compatibility and history, we'll use the first detection as the primary result
-    primary = processed_detections[0]
+    info = get_swara_info(cls_id)
     timestamp = datetime.utcnow().isoformat() + "Z"
 
     try:
-        insert_scan(timestamp, primary["class_name"], primary["class_id"], primary["confidence"], b64)
+        insert_scan(timestamp, info["english_name"], cls_id, conf, b64)
     except Exception as e:
-        # Log error but don't fail the request if database sync fails
         print(f"Failed to save scan to history: {e}")
+
+    processed_detections = [{
+        "class_id": cls_id,
+        "class_name": info["english_name"],
+        "hindi_symbol": info["hindi_symbol"],
+        "confidence": round(conf, 4),
+        "bbox": [0, 0, 0, 0] # Dummy bbox for single detection
+    }]
 
     return {
         "success": True,
-        "class_id": primary["class_id"],
-        "class_name": primary["class_name"],
-        "hindi_symbol": primary["hindi_symbol"],
-        "confidence": primary["confidence"],
+        "class_id": cls_id,
+        "class_name": info["english_name"],
+        "hindi_symbol": info["hindi_symbol"],
+        "confidence": round(conf, 4),
         "detections": processed_detections,
         "timestamp": timestamp,
     }
