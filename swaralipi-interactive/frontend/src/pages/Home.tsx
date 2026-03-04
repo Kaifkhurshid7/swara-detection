@@ -108,9 +108,9 @@ export default function Home() {
 
           <div className="space-y-12">
             {[
-              { id: '01', title: 'Calibration', desc: 'Align manuscript with optic sensors. Adjust for ambient Lux values to optimize symbol contrast.' },
-              { id: '02', title: 'ROI Segmentation', desc: 'Isolate the specific Swara cluster. Coordinate mapping allows the neural engine to focus on character geometry.' },
-              { id: '03', title: 'Classification', desc: 'The model executes inference, mapping visual data to the Hindustani pitch-class ontology.' }
+              { id: '01', title: 'Data Ingestion', desc: 'Initialize the optical sensor or local file stream. Capture the musical manuscript for high-fidelity coordinate mapping.' },
+              { id: '02', title: 'Segment Isolation', desc: 'Define the Region of Interest (ROI) by dragging a bounding box. This focuses the neural engine on a targeted swara or line sequence.' },
+              { id: '03', title: 'Neural Classification', desc: 'The YOLOv8-driven brain.pt parses visual patterns into the Hindustani pitch-class ontology (Sa, Re, Ga, etc.).' }
             ].map((step) => (
               <div key={step.id} className="relative pl-10 border-l-2 border-neutral-100 group">
                 <div className="absolute -left-[11px] top-0 w-5 h-5 rounded-full bg-white border-2 border-neutral-100 group-hover:border-neutral-900 transition-colors duration-500 flex items-center justify-center">

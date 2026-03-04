@@ -194,9 +194,9 @@ export default function Scanner() {
 
           <div className="space-y-12">
             {[
-              { id: '01', title: 'Spatial Alignment', desc: 'Center notation within viewfinder. Maintain parallel alignment with horizontal axis.' },
-              { id: '02', title: 'Lux Calibration', desc: 'Avoid high-contrast shadows. Diffused laboratory lighting recommended for OCR accuracy.' },
-              { id: '03', title: 'Checksum Sync', desc: 'System verifies data integrity locally before initializing neural sequence mapping.' }
+              { id: '01', title: 'Grid Alignment', desc: 'Position the musical manuscript within the viewfinder. Ensure the swara is centered for optimal feature extraction.' },
+              { id: '02', title: 'ROI Definition', desc: 'Define the Region of Interest (ROI) on the workbench. This isolates the pixel data for neural processing.' },
+              { id: '03', title: 'Inference Handshake', desc: 'The system initiates a prioritized data stream to the YOLOv8 engine for real-time identification.' }
             ].map((step) => (
               <div key={step.id} className="relative pl-10 border-l border-neutral-100 group">
                 <div className="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-neutral-200 group-hover:bg-neutral-900 transition-colors" />
