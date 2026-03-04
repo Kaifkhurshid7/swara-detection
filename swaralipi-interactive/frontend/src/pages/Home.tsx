@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
-import { 
-  ScanLine, 
-  History, 
-  ArrowRight, 
-  Database, 
-  Zap, 
-  Microscope, 
-  Music2, 
+import {
+  ScanLine,
+  History,
+  ArrowRight,
+  Database,
+  Zap,
+  Microscope,
+  Music2,
   Info,
   ExternalLink
 } from "lucide-react";
@@ -14,19 +14,19 @@ import {
 export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#F8F9FA] flex flex-col lg:flex-row overflow-hidden selection:bg-neutral-900 selection:text-white">
-      
+
       {/* 1. MAIN RESEARCH CONSOLE (Left) */}
       <main className="flex-1 relative z-10 flex flex-col p-8 lg:p-20 overflow-y-auto">
-        
+
         {/* Subtle Engineering Grid */}
-        <div 
-          className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" 
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} 
+        <div
+          className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }}
         />
 
         <header className="relative z-10 mb-16">
           <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-white border border-neutral-200 text-neutral-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-8 shadow-sm">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-neutral-900 animate-pulse" />
             <span>System Status: Operational</span>
           </div>
           <h1 className="text-6xl font-black text-neutral-900 tracking-[ -0.04em] mb-4">
@@ -53,7 +53,7 @@ export default function Home() {
               </div>
             </div>
             <div className="w-10 h-10 rounded-full border border-neutral-100 flex items-center justify-center group-hover:bg-neutral-900 group-hover:text-white transition-all">
-               <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" />
             </div>
           </Link>
 
@@ -71,7 +71,7 @@ export default function Home() {
               </div>
             </div>
             <div className="w-10 h-10 rounded-full border border-neutral-100 flex items-center justify-center group-hover:bg-neutral-900 group-hover:text-white transition-all">
-               <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" />
             </div>
           </Link>
         </div>
@@ -83,11 +83,11 @@ export default function Home() {
             <span className="text-[10px] font-black uppercase tracking-[0.3em]">Core Swara Reference</span>
           </div>
           <div className="grid grid-cols-4 gap-4 max-w-xl">
-             {['Sa', 'Re', 'Ga', 'Ma'].map((s) => (
-               <div key={s} className="bg-neutral-100/50 border border-neutral-200/50 rounded-xl p-3 text-center">
-                  <span className="text-sm font-bold text-neutral-800">{s}</span>
-               </div>
-             ))}
+            {['Sa', 'Re', 'Ga', 'Ma'].map((s) => (
+              <div key={s} className="bg-neutral-100/50 border border-neutral-200/50 rounded-xl p-3 text-center">
+                <span className="text-sm font-bold text-neutral-800">{s}</span>
+              </div>
+            ))}
           </div>
         </section>
       </main>
@@ -101,7 +101,7 @@ export default function Home() {
             </div>
             <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-neutral-400">Protocol</h2>
           </div>
-          
+
           <h3 className="text-3xl font-black text-neutral-900 mb-10 leading-tight">
             Methodology & <br /> Data Sequence
           </h3>

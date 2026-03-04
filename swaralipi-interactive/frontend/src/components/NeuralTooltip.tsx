@@ -24,15 +24,15 @@ export default function NeuralTooltip({
   return (
     <div
       className={`flex flex-col gap-4 min-w-[220px] p-6 transition-all duration-500 ${inline
-          ? "bg-neutral-50/50 border border-neutral-100 rounded-[2rem]"
-          : "absolute z-50 glass-card rounded-[2.5rem] shadow-2xl animate-premium"
+        ? "bg-neutral-50/50 border border-neutral-100 rounded-[2rem]"
+        : "absolute z-50 glass-card rounded-[2.5rem] shadow-2xl animate-premium"
         }`}
       style={inline ? undefined : { left: `${Math.max(8, left)}px`, top: `${Math.max(8, top)}px` }}
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
         <div className="flex items-center gap-2">
-          <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${pct > 80 ? "bg-green-50 text-green-600" : "bg-neutral-100 text-neutral-400"}`}>
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-neutral-100 text-neutral-900">
             <Zap className="w-3 h-3 fill-current" />
           </div>
           <span className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400">Neural Insight</span>
@@ -62,11 +62,11 @@ export default function NeuralTooltip({
       <div className="space-y-2">
         <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-neutral-400">
           <span>Reliability</span>
-          <span className={pct > 80 ? "text-green-600" : "text-neutral-900"}>{pct}%</span>
+          <span className="text-neutral-900">{pct}%</span>
         </div>
         <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ${pct > 80 ? "bg-green-500" : "bg-neutral-900"}`}
+            className="h-full rounded-full transition-all duration-1000 bg-neutral-900"
             style={{ width: `${pct}%` }}
           />
         </div>

@@ -49,8 +49,8 @@ export default function Navbar() {
           <Link
             to="/scan"
             className={`group relative flex items-center gap-3 px-5 py-2 rounded-xl transition-all duration-500 ${isActive("/scan")
-                ? "bg-neutral-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
-                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 border border-transparent hover:border-neutral-100"
+              ? "bg-neutral-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
+              : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 border border-transparent hover:border-neutral-100"
               }`}
           >
             <ScanLine className={`w-4 h-4 transition-transform group-hover:rotate-90 ${isActive("/scan") ? "text-white" : "text-neutral-400"}`} />
@@ -58,7 +58,7 @@ export default function Navbar() {
 
             {/* Active Indicator Dot */}
             {isActive("/scan") && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-neutral-900 rounded-full border-2 border-white animate-pulse" />
             )}
           </Link>
 
@@ -67,8 +67,8 @@ export default function Navbar() {
           <Link
             to="/history"
             className={`group relative flex items-center gap-3 px-5 py-2 rounded-xl transition-all duration-500 ${isActive("/history")
-                ? "bg-neutral-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
-                : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 border border-transparent hover:border-neutral-100"
+              ? "bg-neutral-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
+              : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 border border-transparent hover:border-neutral-100"
               }`}
           >
             <Binary className={`w-4 h-4 ${isActive("/history") ? "text-white" : "text-neutral-400"}`} />

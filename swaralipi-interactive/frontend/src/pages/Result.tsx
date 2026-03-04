@@ -165,15 +165,19 @@ export default function Result() {
                 </div>
               ) : (
                 <>
-                  {result?.detections?.map((det, idx) => (
-                    <NeuralTooltip
-                      key={idx}
-                      hindiSymbol={det.hindi_symbol}
-                      englishName={det.class_name || ""}
-                      confidence={det.confidence}
-                      inline
-                    />
-                  ))}
+                  {result?.detections && result.detections.length > 0 && (
+                    (() => {
+                      const topResult = [...result.detections].sort((a, b) => b.confidence - a.confidence)[0];
+                      return (
+                        <NeuralTooltip
+                          hindiSymbol={topResult.hindi_symbol}
+                          englishName={topResult.class_name || ""}
+                          confidence={topResult.confidence}
+                          inline
+                        />
+                      );
+                    })()
+                  )}
 
                   {result && !result.detections && result.hindi_symbol && (
                     <NeuralTooltip
