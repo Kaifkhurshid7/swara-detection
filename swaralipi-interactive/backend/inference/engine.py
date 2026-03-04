@@ -87,13 +87,16 @@ def run_inference(base64_image: str, conf_threshold: float = 0.35):
         img_bytes = io.BytesIO(raw)
         image = Image.open(img_bytes).convert("RGB")
         
-        # Add slight padding (e.g., 20px) to help YOLO recognize tight crops better
-        # Especially helpful for middle-octave swaras like "Pa"
-        padding = 20
+        # Add minimal padding (5px) to help YOLO recognize tight crops without shrinking the symbol too much
+        padding = 5
         new_size = (image.width + padding * 2, image.height + padding * 2)
         padded_image = Image.new("RGB", new_size, (255, 255, 255))
         padded_image.paste(image, (padding, padding))
         image = padded_image
+        
+        # Keep contrast boost mild (1.1 instead of 1.4)
+        from PIL import ImageEnhance
+        image = ImageEnhance.Contrast(image).enhance(1.1)
     except Exception as e:
         print(f"Image parsing error: {e}")
         return []
