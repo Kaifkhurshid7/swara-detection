@@ -211,12 +211,12 @@ export default function Result() {
         <div className="p-8 border-t border-neutral-100 bg-neutral-50/50 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-neutral-900 shadow-[0_0_8px_rgba(0,0,0,0.2)]" />
-            <span className="text-[10px] font-black text-neutral-900 uppercase tracking-[0.3em]">System: Optimal</span>
+            <span className="text-[10px] font-black text-neutral-900 uppercase tracking-[0.3em]">Swara detection</span>
           </div>
           <div className="flex items-center gap-4 text-[9px] font-mono text-neutral-400">
-            <span>LTC: 4ms</span>
+            {/* <span>LTC: 4ms</span> */}
             <span className="opacity-40">|</span>
-            <span>ID: Swara-GPT-v2</span>
+            {/* <span>ID: Swara-GPT-v2</span> */}
           </div>
         </div>
       </aside>
@@ -231,7 +231,7 @@ export default function Result() {
         <div className="relative z-10 flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-neutral-400 shadow-sm" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Digital Workspace — Optic Mapping Feed</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Workspace</h3>
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
