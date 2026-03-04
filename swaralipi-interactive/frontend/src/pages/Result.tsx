@@ -4,7 +4,7 @@ import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { analyzeCrop, getUserFacingApiError, type AnalyzeResponse } from "../api/client";
 import NeuralTooltip from "../components/NeuralTooltip";
-import { Loader2, ArrowLeft, AlertCircle, ScanText, Layers, ShieldCheck } from "lucide-react";
+import { Loader2, ArrowLeft, AlertCircle, ScanText, Layers, ShieldCheck, Activity, Target } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
 
@@ -72,7 +72,7 @@ export default function Result() {
 
   if (!source) {
     return (
-      <div className="flex items-center justify-center min-vh-60 animate-premium">
+      <div className="flex items-center justify-center min-h-screen bg-[#F8F9FA]">
         <Loader2 className="w-10 h-10 text-neutral-900 animate-spin" />
       </div>
     );
@@ -81,115 +81,123 @@ export default function Result() {
   const isBackendError = !!result?.message?.toLowerCase().includes("backend not reachable");
 
   return (
-    <div className="min-h-screen pt-32 pb-12 px-6 bg-neutral-50 flex flex-col xl:flex-row gap-8 max-w-[1600px] mx-auto overflow-hidden">
+    <div className="relative min-h-screen bg-[#F8F9FA] flex flex-col lg:flex-row overflow-hidden selection:bg-neutral-900 selection:text-white">
 
-      {/* Left: Control & Result Panel */}
-      <aside className="w-full xl:w-[450px] shrink-0 flex flex-col gap-6 animate-premium">
+      {/* LEFT: INTELLIGENCE MONITOR (Side Control) */}
+      <aside className="w-full lg:w-[450px] bg-white border-r border-neutral-200 flex flex-col p-8 lg:p-12 overflow-y-auto relative z-20">
 
-        {/* Header Card */}
-        <div className="neural-panel p-8 bg-neutral-900 text-white">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <ScanText className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-bold font-heading uppercase tracking-widest text-[14px]">Intelligence Monitor</h2>
-            </div>
-            <button
-              onClick={() => navigate("/scan")}
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-              title="New Scan"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+        {/* Header Section */}
+        <div className="mb-10 flex items-center justify-between">
+          <button
+            onClick={() => navigate("/scan")}
+            className="flex items-center gap-3 text-neutral-400 hover:text-black transition-all group px-4 py-2 rounded-xl hover:bg-neutral-50 border border-transparent hover:border-neutral-100"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Reset Node</span>
+          </button>
+          <div className="w-10 h-10 rounded-xl bg-neutral-900 flex items-center justify-center shadow-lg shadow-neutral-200">
+            <Activity className="w-5 h-5 text-white animate-pulse" />
           </div>
+        </div>
 
-          <div className="space-y-6">
-            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+        <div className="mb-12">
+          <h2 className="text-2xl font-black text-neutral-900 mb-6 leading-tight">Intelligence <br /> Monitor</h2>
+
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Layers className="w-4 h-4 text-neutral-500" />
-                <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">Processing Layer</span>
+                <Layers className="w-4 h-4 text-neutral-400" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Processing Layer</span>
               </div>
-              <span className="text-xs font-bold font-heading text-neutral-300">YOLOv8-Neural</span>
+              <span className="text-[10px] font-bold text-neutral-900">YOLOv8-Neural</span>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <ShieldCheck className="w-4 h-4 text-neutral-500" />
-                <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">Security Protocol</span>
+                <ShieldCheck className="w-4 h-4 text-neutral-400" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Status</span>
               </div>
-              <span className="text-xs font-bold font-heading text-green-400">ACTIVE</span>
+              <span className="text-[10px] font-bold text-emerald-500">OPTIMIZED</span>
             </div>
           </div>
         </div>
 
-        {/* Results Stream */}
-        <div className="neural-panel flex-1 bg-white p-6 flex flex-col min-h-[400px]">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-6 px-2">Detection Stream</h3>
+        {/* Detection Stream Area */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-6">
+            <Target className="w-3.5 h-3.5 text-neutral-400" />
+            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">Inference Stream</h3>
+          </div>
 
-          <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
-            {loading && (
-              <div className="flex flex-col items-center justify-center py-20 gap-4 text-neutral-400">
-                <Loader2 className="w-10 h-10 animate-spin text-neutral-900" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Analyzing selection...</span>
+          <div className="flex-1 overflow-y-auto pr-2 space-y-4 scrollbar-hide">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-900" />
+                <span className="text-[9px] font-black uppercase tracking-[0.3em]">Parsing Data...</span>
               </div>
-            )}
-
-            {!loading && result && result.detections && result.detections.length > 0 && (
-              result.detections.map((det, idx) => (
-                <div key={idx} className="animate-premium" style={{ animationDelay: `${idx * 100}ms` }}>
+            ) : (
+              <>
+                {result?.detections?.map((det, idx) => (
                   <NeuralTooltip
+                    key={idx}
                     hindiSymbol={det.hindi_symbol}
                     englishName={det.class_name || ""}
                     confidence={det.confidence}
                     inline
                   />
-                </div>
-              ))
-            )}
+                ))}
 
-            {!loading && result && !result.detections && result.hindi_symbol && (
-              <NeuralTooltip
-                hindiSymbol={result.hindi_symbol}
-                englishName={result.class_name || ""}
-                confidence={result.confidence}
-                inline
-              />
-            )}
+                {result && !result.detections && result.hindi_symbol && (
+                  <NeuralTooltip
+                    hindiSymbol={result.hindi_symbol}
+                    englishName={result.class_name || ""}
+                    confidence={result.confidence}
+                    inline
+                  />
+                )}
 
-            {!loading && !result && (
-              <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-                <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest leading-loose">
-                  Standing by for crop selection...<br />
-                  <span className="text-[10px] font-medium lowercase italic text-neutral-300">Target a swara or full line</span>
-                </p>
-              </div>
-            )}
+                {!result && !loading && (
+                  <div className="border-2 border-dashed border-neutral-100 rounded-[2rem] py-20 px-8 text-center">
+                    <p className="text-[10px] font-black text-neutral-300 uppercase tracking-widest leading-loose italic">
+                      Awaiting spatial definition <br />
+                      <span className="normal-case font-medium text-neutral-400">Draw a bounding box on the right feed</span>
+                    </p>
+                  </div>
+                )}
 
-            {!loading && result && result.message && (
-              <div className={`rounded-[2rem] p-6 border ${isBackendError ? "bg-amber-50 border-amber-200" : "bg-neutral-50 border-neutral-100"}`}>
-                <div className="flex items-center gap-3 mb-3">
-                  <AlertCircle className={`w-5 h-5 ${isBackendError ? "text-amber-600" : "text-neutral-400"}`} />
-                  <span className="text-xs font-bold uppercase tracking-widest text-neutral-900">System Log</span>
-                </div>
-                <p className="text-sm text-neutral-600 leading-relaxed">{result.message}</p>
-              </div>
+                {result?.message && (
+                  <div className={`rounded-2xl p-5 border ${isBackendError ? "bg-amber-50 border-amber-200 text-amber-700" : "bg-neutral-50 border-neutral-200 text-neutral-600"}`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <AlertCircle className="w-4 h-4 opacity-50" />
+                      <span className="text-[9px] font-black uppercase tracking-widest">System Log</span>
+                    </div>
+                    <p className="text-[11px] font-medium leading-relaxed">{result.message}</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
       </aside>
 
-      {/* Right: Workspace */}
-      <main className="flex-1 min-h-[600px] neural-panel bg-neutral-100 p-8 flex flex-col animate-premium [animation-delay:200ms]">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">Live Feed</span>
+      {/* RIGHT: WORKSPACE FEED (The Analysis Feed) */}
+      <main className="flex-1 p-8 lg:p-16 flex flex-col relative overflow-hidden">
+
+        {/* Subtle Lab Grid Texture */}
+        <div
+          className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }}
+        />
+
+        <div className="relative z-10 flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400 tracking-widest">Active Coordinate Mapping</span>
           </div>
-          <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-widest">Select region for neural parsing</p>
+          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">Cross-Origin Data Stream</p>
         </div>
 
-        <div className="flex-1 bg-white rounded-[2rem] border border-neutral-200 shadow-inner p-8 flex items-center justify-center overflow-auto">
+        <div className="relative z-10 flex-1 bg-white rounded-[3rem] border border-neutral-200 shadow-[0_20px_50px_rgba(0,0,0,0.04)] p-10 flex items-center justify-center overflow-auto ring-8 ring-neutral-100/50">
           <ReactCrop
             crop={crop}
             onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -200,13 +208,35 @@ export default function Result() {
               ref={imgRef}
               src={source}
               alt="Notation feed"
-              className="max-h-[65vh] w-auto shadow-2xl rounded-lg"
+              className="max-h-[60vh] w-auto shadow-2xl rounded-xl border border-neutral-200 grayscale-[0.1] hover:grayscale-0 transition-all duration-700"
               style={{ maxWidth: "100%" }}
               crossOrigin="anonymous"
             />
           </ReactCrop>
         </div>
+
+        <footer className="relative z-10 mt-8 flex justify-center">
+          <div className="px-6 py-2 rounded-full bg-neutral-900/5 backdrop-blur-md border border-neutral-200 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-neutral-900" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-neutral-900">ROI: Active</span>
+            </div>
+            <div className="h-3 w-[1px] bg-neutral-300" />
+            <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest italic">Define swara boundaries manually</span>
+          </div>
+        </footer>
       </main>
+
+      <style>{`
+        /* Minimal custom styling for crop area to match lab theme */
+        .ReactCrop__crop-selection {
+          border: 2px solid #000 !important;
+          box-shadow: 0 0 0 4000px rgba(255, 255, 255, 0.6) !important;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }
