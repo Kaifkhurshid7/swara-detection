@@ -142,7 +142,7 @@ export default function Result() {
                   <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${crop && !result ? 'text-white' : 'text-neutral-500'}`}>Neural Synthesis</h4>
                   <p className={`text-[11px] leading-relaxed font-medium ${crop && !result ? 'text-neutral-400' : 'text-neutral-400'}`}>Execute localized weight mapping and swara classification via YOLOv8 kernel.</p>
                 </div>
-                {loading ? <Loader2 className="w-5 h-5 text-white mt-1 animate-spin" /> : (result || resultsReady) ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : null}
+                {loading ? <Loader2 className="w-5 h-5 text-white mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : null}
               </div>
             </div>
           </section>
