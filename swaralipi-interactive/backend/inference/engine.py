@@ -77,24 +77,23 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
 
     try:
         img_bytes = io.BytesIO(image_bytes)
-        image = Image.open(img_bytes).convert("L") # Convert to grayscale for structural focus
+        image = Image.open(img_bytes).convert("RGB") # Revert to RGB to preserve detail
         
-        # 1. Tight crop to remove excessive white space around symbol
+        # 1. Tight crop to remove excessive white space around symbol/strip
         image = _tight_crop_foreground(image)
         
-        # 2. Add minimal padding (5px) and convert back to RGB for YOLO
-        padding = 8 # Slightly more padding (8px)
+        # 2. Add minimal padding (8px) for edge feature recovery
+        padding = 8
         new_size = (image.width + padding * 2, image.height + padding * 2)
-        padded_image = Image.new("L", new_size, 255)
+        padded_image = Image.new("RGB", new_size, (255, 255, 255))
         padded_image.paste(image, (padding, padding))
-        image = padded_image.convert("RGB")
+        image = padded_image
         
-        # 3. Enhance visibility: Contrast and Balanced Sharpness
-        from PIL import ImageEnhance, ImageFilter
-        # Subtle denoising to remove pixel noise before sharpening
-        image = image.filter(ImageFilter.GaussianBlur(radius=0.3))
-        image = ImageEnhance.Contrast(image).enhance(1.2)
-        image = ImageEnhance.Sharpness(image).enhance(1.5) # Balanced sharpness (1.5) to avoid halos
+        # 3. Enhance visibility: Balanced Contrast & Original Sharpness
+        from PIL import ImageEnhance
+        # REMOVED GaussianBlur to preserve fine symbolic details (dots, accents)
+        image = ImageEnhance.Contrast(image).enhance(1.3) # Slightly higher contrast (1.3)
+        image = ImageEnhance.Sharpness(image).enhance(1.5)
     except Exception as e:
         print(f"Image parsing error: {e}")
         return []
@@ -102,9 +101,8 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
     detections = []
     try:
         model = _get_model()
-        # Set imgsz=640 to match training resolution. 
-        # Lower conf_threshold to 0.25 to catch potential "PA" detections
-        results = model.predict(source=image, conf=0.25, imgsz=640, verbose=False)
+        # Increased imgsz to 1024 to maintain resolution when processing long strips
+        results = model.predict(source=image, conf=0.25, imgsz=1024, verbose=False)
         for r in results:
             if r.boxes is None:
                 continue

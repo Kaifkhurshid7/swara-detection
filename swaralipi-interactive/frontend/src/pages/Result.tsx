@@ -148,7 +148,7 @@ export default function Result() {
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${crop && !result ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
                 <div className="flex-1">
                   <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${crop && !result ? 'text-neutral-900' : 'text-neutral-500'}`}>Neural Synthesis</h4>
-                  <p className={`text-[11px] leading-relaxed font-medium ${crop && !result ? 'text-neutral-600' : 'text-neutral-400'}`}>Execute localized weight mapping and swara classification via YOLOv8 kernel.</p>
+                  <p className={`text-[11px] leading-relaxed font-medium ${crop && !result ? 'text-neutral-600' : 'text-neutral-400'}`}>Execute localized weight mapping and sequential swara classification via YOLOv8 kernel.</p>
                 </div>
                 {loading ? <Loader2 className="w-5 h-5 text-neutral-900 mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : null}
               </div>
@@ -171,19 +171,21 @@ export default function Result() {
               ) : result ? (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
                   {result.detections && result.detections.length > 0 ? (
-                    <NeuralTooltip
-                      hindiSymbol={result.detections[0].hindi_symbol}
-                      englishName={result.detections[0].class_name || ""}
-                      confidence={result.detections[0].confidence}
-                      inline
-                    />
-                  ) : result.hindi_symbol ? (
-                    <NeuralTooltip
-                      hindiSymbol={result.hindi_symbol}
-                      englishName={result.class_name || ""}
-                      confidence={result.confidence}
-                      inline
-                    />
+                    <div className="flex flex-wrap gap-4 items-center justify-center">
+                      {result.detections.map((det, idx) => (
+                        <div key={idx} className="flex items-center gap-4">
+                          <NeuralTooltip
+                            hindiSymbol={det.hindi_symbol}
+                            englishName={det.class_name || ""}
+                            confidence={det.confidence}
+                            inline
+                          />
+                          {idx < (result.detections?.length || 0) - 1 && (
+                            <div className="text-neutral-200 text-xs font-mono">→</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="border border-neutral-100 rounded-3xl py-12 px-8 text-center bg-neutral-50/50">
                       <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic uppercase tracking-widest">
