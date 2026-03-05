@@ -74,7 +74,7 @@ export default function Scanner() {
 
           <div className="flex items-center gap-5">
             <div className="text-right hidden sm:block">
-              <p className="text-[10px] font-black text-neutral-900 uppercase tracking-widest">Node: SL-INGEST-740</p>
+              <p className="text-[10px] font-black text-neutral-900 uppercase tracking-widest">swara detection</p>
               <p className="text-[8px] font-bold text-neutral-900 uppercase tracking-widest mt-1">Live Connection Signal</p>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-white border border-neutral-200 flex items-center justify-center shadow-sm">
