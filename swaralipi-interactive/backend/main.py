@@ -84,6 +84,15 @@ async def analyze(file: UploadFile = File(...)):
 
     # For backward compatibility and history, use the first/highest confidence detection
     primary = max(processed_detections, key=lambda d: d["confidence"])
+    
+    # Uncertainty detection: Check if the second best is close to primary
+    warning = None
+    if len(processed_detections) > 1:
+        sorted_dets = sorted(processed_detections, key=lambda d: d["confidence"], reverse=True)
+        conf_gap = sorted_dets[0]["confidence"] - sorted_dets[1]["confidence"]
+        if conf_gap < 0.15: # Within 15% gap
+            warning = f"UNCERTAINTY DETECTED: Similar patterns found ({sorted_dets[0]['class_name']} vs {sorted_dets[1]['class_name']}). Refine ROI for clarity."
+
     timestamp = datetime.utcnow().isoformat() + "Z"
 
     try:
@@ -101,6 +110,7 @@ async def analyze(file: UploadFile = File(...)):
         "confidence": primary["confidence"],
         "detections": processed_detections,
         "timestamp": timestamp,
+        "message": warning
     }
 
 @app.get("/history")

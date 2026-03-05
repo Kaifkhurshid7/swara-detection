@@ -77,18 +77,24 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
 
     try:
         img_bytes = io.BytesIO(image_bytes)
-        image = Image.open(img_bytes).convert("RGB")
+        image = Image.open(img_bytes).convert("L") # Convert to grayscale for structural focus
         
-        # Add minimal padding (5px) to help YOLO recognize tight crops without shrinking the symbol too much
-        padding = 5
+        # 1. Tight crop to remove excessive white space around symbol
+        image = _tight_crop_foreground(image)
+        
+        # 2. Add minimal padding (5px) and convert back to RGB for YOLO
+        padding = 8 # Slightly more padding (8px)
         new_size = (image.width + padding * 2, image.height + padding * 2)
-        padded_image = Image.new("RGB", new_size, (255, 255, 255))
+        padded_image = Image.new("L", new_size, 255)
         padded_image.paste(image, (padding, padding))
-        image = padded_image
+        image = padded_image.convert("RGB")
         
-        # Keep contrast boost mild (1.1 instead of 1.4)
-        from PIL import ImageEnhance
-        image = ImageEnhance.Contrast(image).enhance(1.1)
+        # 3. Enhance visibility: Contrast and Balanced Sharpness
+        from PIL import ImageEnhance, ImageFilter
+        # Subtle denoising to remove pixel noise before sharpening
+        image = image.filter(ImageFilter.GaussianBlur(radius=0.3))
+        image = ImageEnhance.Contrast(image).enhance(1.2)
+        image = ImageEnhance.Sharpness(image).enhance(1.5) # Balanced sharpness (1.5) to avoid halos
     except Exception as e:
         print(f"Image parsing error: {e}")
         return []
@@ -96,7 +102,9 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
     detections = []
     try:
         model = _get_model()
-        results = model.predict(source=image, conf=conf_threshold, verbose=False)
+        # Set imgsz=640 to match training resolution. 
+        # Lower conf_threshold to 0.25 to catch potential "PA" detections
+        results = model.predict(source=image, conf=0.25, imgsz=640, verbose=False)
         for r in results:
             if r.boxes is None:
                 continue
