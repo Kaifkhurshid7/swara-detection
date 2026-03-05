@@ -68,23 +68,15 @@ def _get_model():
         _model = YOLO(str(MODEL_PATH))
     return _model
 
-def run_inference(base64_image: str, conf_threshold: float = 0.35):
+def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
     """
-    Decode base64 image, run YOLO, return list of detections: 
+    Run YOLO on image bytes, return list of detections: 
     [{"class_id": int, "confidence": float, "bbox": [x1, y1, x2, y2]}, ...]
     Detections are sorted by x-coordinate (musical flow).
     """
-    try:
-        # Strip data URL prefix if present
-        if base64_image.startswith("data:image"):
-            base64_image = base64_image.split(",", 1)[1].strip()
-        raw = base64.b64decode(base64_image)
-    except Exception as e:
-        print(f"Base64 decoding error: {e}")
-        return []
 
     try:
-        img_bytes = io.BytesIO(raw)
+        img_bytes = io.BytesIO(image_bytes)
         image = Image.open(img_bytes).convert("RGB")
         
         # Add minimal padding (5px) to help YOLO recognize tight crops without shrinking the symbol too much

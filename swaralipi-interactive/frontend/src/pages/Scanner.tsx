@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Cpu,
   AlertCircle,
-  Binary,
   Zap,
   Activity,
   ShieldCheck,
@@ -97,7 +96,7 @@ export default function Scanner() {
                   <Webcam
                     ref={webcamRef}
                     audio={false}
-                    screenshotFormat="image/jpeg"
+                    screenshotFormat="image/png"
                     className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] opacity-80"
                     videoConstraints={{ facingMode: "environment" }}
                   />

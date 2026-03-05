@@ -80,9 +80,14 @@ export interface HistoryResponse {
   scans: HistoryScan[];
 }
 
-export async function analyzeCrop(base64Image: string): Promise<AnalyzeResponse> {
-  const { data } = await client.post<AnalyzeResponse>("/analyze", {
-    image_base64: base64Image,
+export async function analyzeCrop(imageBlob: Blob): Promise<AnalyzeResponse> {
+  const formData = new FormData();
+  formData.append("file", imageBlob, "image.png");
+
+  const { data } = await client.post<AnalyzeResponse>("/analyze", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
   return data;
 }

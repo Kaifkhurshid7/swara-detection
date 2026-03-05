@@ -20,22 +20,30 @@ import {
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
 
-function getCroppedImageSrc(image: HTMLImageElement, crop: PixelCrop): string {
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return "";
+function getCroppedImageBlob(image: HTMLImageElement, crop: PixelCrop): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      resolve(null);
+      return;
+    }
 
-  const scaleX = image.naturalWidth / image.width;
-  const scaleY = image.naturalHeight / image.height;
-  const sx = Math.max(0, Math.floor(crop.x * scaleX));
-  const sy = Math.max(0, Math.floor(crop.y * scaleY));
-  const sw = Math.max(1, Math.floor(crop.width * scaleX));
-  const sh = Math.max(1, Math.floor(crop.height * scaleY));
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const sx = Math.max(0, Math.floor(crop.x * scaleX));
+    const sy = Math.max(0, Math.floor(crop.y * scaleY));
+    const sw = Math.max(1, Math.floor(crop.width * scaleX));
+    const sh = Math.max(1, Math.floor(crop.height * scaleY));
 
-  canvas.width = sw;
-  canvas.height = sh;
-  ctx.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/png");
+    canvas.width = sw;
+    canvas.height = sh;
+    ctx.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    }, "image/png");
+  });
 }
 
 export default function Result() {
@@ -58,12 +66,12 @@ export default function Result() {
   const onComplete = useCallback(
     async (c: PixelCrop) => {
       if (!imgRef.current || !source || c.width < 10 || c.height < 10) return;
-      const base64 = getCroppedImageSrc(imgRef.current, c);
-      if (!base64) return;
+      const blob = await getCroppedImageBlob(imgRef.current, c);
+      if (!blob) return;
       setLoading(true);
       setResult(null);
       try {
-        const data = await analyzeCrop(base64);
+        const data = await analyzeCrop(blob);
         setResult(data);
       } catch (err) {
         const message = getUserFacingApiError(err, "analyze");

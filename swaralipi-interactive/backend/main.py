@@ -1,9 +1,7 @@
-"""
-FastAPI backend: /analyze (POST cropped base64), /history (GET).
-"""
+from fastapi import FastAPI, HTTPException, File, UploadFile
+import base64
 import re
 from datetime import datetime
-from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -43,14 +41,19 @@ def read_root():
     return {"status": "success", "message": "Swaralipi Backend API is running!"}
 
 @app.post("/analyze")
-def analyze(req: AnalyzeRequest):
-    try:
-        b64 = normalize_base64(req.image_base64)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid image data: {e}")
+async def analyze(file: UploadFile = File(...)):
+    if file.content_type != "image/png":
+        raise HTTPException(status_code=400, detail="Only PNG images are supported for maximum accuracy.")
 
     try:
-        detections_raw = run_inference(b64)
+        image_bytes = await file.read()
+        if not image_bytes:
+            raise ValueError("Empty image file")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid image file: {e}")
+
+    try:
+        detections_raw = run_inference(image_bytes)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Inference failed: {e}")
 
@@ -80,12 +83,12 @@ def analyze(req: AnalyzeRequest):
         })
 
     # For backward compatibility and history, use the first/highest confidence detection
-    # detections_raw is sorted by x, so we might want the highest confidence for 'primary'
-    # or just the first of the sorted list. Let's use the first of the processed list.
     primary = max(processed_detections, key=lambda d: d["confidence"])
     timestamp = datetime.utcnow().isoformat() + "Z"
 
     try:
+        # Convert to base64 for history storage (keeping existing DB schema)
+        b64 = base64.b64encode(image_bytes).decode("utf-8")
         insert_scan(timestamp, primary["class_name"], primary["class_id"], primary["confidence"], b64)
     except Exception as e:
         print(f"Failed to save scan to history: {e}")
