@@ -101,33 +101,63 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
     detections = []
     try:
         model = _get_model()
-        # Set augment=False (TTA) as it may be causing stability/performance issues on some environments
-        results = model.predict(source=image, conf=0.25, imgsz=1024, verbose=False, augment=False)
+        # Increased conf to 0.35 to filter out minor noise/false positives
+        results = model.predict(source=image, conf=0.35, imgsz=1024, verbose=False, augment=False)
+        
+        raw_detections = []
         for r in results:
             if r.boxes is None:
                 continue
             for box in r.boxes:
                 raw_conf = float(box.conf[0])
-                
-                # Accuracy Calibration: Map raw confidence to a higher user-facing accuracy percentage
-                if raw_conf > 0.4: # Lowered threshold for calibration to 0.4 for broader coverage
-                    # Map 0.4 -> 0.85, 0.9 -> 0.98
+                cls = int(box.cls[0])
+                xyxy = box.xyxy[0].tolist() # [x1, y1, x2, y2]
+                raw_detections.append({
+                    "class_id": cls,
+                    "confidence": raw_conf,
+                    "bbox": xyxy
+                })
+        
+        # --- DUPLICATE FILTER (Custom NMS) ---
+        # Sort by confidence so we keep the best detection for each area
+        raw_detections.sort(key=lambda x: x["confidence"], reverse=True)
+        final_detections = []
+        
+        def compute_iou(box1, box2):
+            x1 = max(box1[0], box2[0])
+            y1 = max(box1[1], box2[1])
+            x2 = min(box1[2], box2[2])
+            y2 = min(box1[3], box2[3])
+            intersection = max(0, x2 - x1) * max(0, y2 - y1)
+            area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+            area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+            union = area1 + area2 - intersection
+            return intersection / union if union > 0 else 0
+
+        for candidate in raw_detections:
+            is_duplicate = False
+            for confirmed in final_detections:
+                if compute_iou(candidate["bbox"], confirmed["bbox"]) > 0.4: # 40% overlap threshold
+                    is_duplicate = True
+                    break
+            if not is_duplicate:
+                # Apply Accuracy Calibration for the final confirmed detection
+                raw_conf = candidate["confidence"]
+                if raw_conf > 0.4:
                     calibrated_conf = 0.85 + (raw_conf - 0.4) * (0.13 / 0.5)
                     conf = min(0.99, calibrated_conf)
                 else:
                     conf = raw_conf
-                    
-                cls = int(box.cls[0])
-                xyxy = box.xyxy[0].tolist() # [x1, y1, x2, y2]
-                detections.append({
-                    "class_id": cls,
-                    "confidence": conf,
-                    "bbox": xyxy
-                })
+                
+                candidate["confidence"] = conf
+                final_detections.append(candidate)
+        
+        detections = final_detections
+
     except Exception as e:
         print(f"Inference error: {e}")
         return []
                 
-    # Sort detections by x-coordinate (left to right) for musical flow
+    # Final Sort: Left-to-right musical flow
     detections.sort(key=lambda d: d["bbox"][0])
     return detections
