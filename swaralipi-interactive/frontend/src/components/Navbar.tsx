@@ -35,10 +35,10 @@ export default function Navbar() {
                 Swaralipi <span className="text-neutral-400 font-light italic">Lab</span>
               </span>
               <div className="h-3 w-[1px] bg-neutral-200 mx-1" />
-              <span className="text-[10px] font-black text-amber-500 tracking-widest">v2.0</span>
+              <span className="text-[10px] font-black text-amber-500 tracking-widest">YoloV8</span>
             </div>
             <span className="text-[8px] font-black text-neutral-400 uppercase tracking-[0.4em] leading-none mt-1.5">
-              Neural Ingestion Terminal
+              Neural Terminal
             </span>
           </div>
         </Link>
