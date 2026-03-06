@@ -27,7 +27,7 @@ export default function Home() {
         <header className="relative z-10 mb-16">
           <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-white border border-neutral-200 text-neutral-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-8 shadow-sm">
             <div className="w-1.5 h-1.5 rounded-full bg-neutral-900 animate-pulse" />
-            <span>System Status: Operational</span>
+            <span>Swara-detection</span>
           </div>
           <h1 className="text-6xl font-black text-neutral-900 tracking-[ -0.04em] mb-4">
             Swaralipi <span className="text-neutral-400 font-light italic tracking-normal">Lab</span>
@@ -48,7 +48,7 @@ export default function Home() {
                 <ScanLine className="w-7 h-7" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Optical Ingestion</h2>
+                <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Upload File</h2>
                 <p className="text-neutral-400 text-xs mt-1 font-medium">Initialize real-time manuscript capture.</p>
               </div>
             </div>
