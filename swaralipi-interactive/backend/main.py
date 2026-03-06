@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from database import init_db, insert_scan, get_history
 from inference.engine import run_inference
 from mapping.swara_map import get_swara_info
+import os
 
 app = FastAPI(title="Swaralipi OCR API")
 app.add_middleware(

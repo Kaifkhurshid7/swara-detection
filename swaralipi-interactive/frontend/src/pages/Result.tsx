@@ -2,7 +2,11 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { analyzeCrop, getUserFacingApiError, type AnalyzeResponse } from "../api/client";
+import {
+  analyzeCrop,
+  getUserFacingApiError,
+  type AnalyzeResponse
+} from "../api/client";
 import NeuralTooltip from "../components/NeuralTooltip";
 import {
   Loader2,
@@ -15,7 +19,10 @@ import {
   MousePointer2,
   Layers,
   Fingerprint,
-  Crosshair
+  Crosshair,
+  Copy,
+  Check,
+  ClipboardList
 } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
@@ -53,6 +60,7 @@ export default function Result() {
   const [crop, setCrop] = useState<Crop | undefined>();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(SCAN_IMAGE_KEY);
@@ -89,6 +97,15 @@ export default function Result() {
     },
     [source]
   );
+
+
+  const handleCopyNotation = () => {
+    if (!result?.detections) return;
+    const text = result.detections.map(d => d.hindi_symbol).join(" ");
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (!source) {
     return (
@@ -215,6 +232,58 @@ export default function Result() {
               )}
             </div>
           </section>
+
+          {/* TRANSCRIPTION CONSOLE: TEXT EXTRACTION */}
+          <section className="space-y-6 pt-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <ClipboardList className="w-3.5 h-3.5 text-neutral-400" />
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Neuro-Transcription</h3>
+              </div>
+              {result?.detections && result.detections.length > 0 && (
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={handleCopyNotation}
+                    className="flex items-center gap-2 group"
+                  >
+                    <span className={`text-[9px] font-bold uppercase tracking-widest transition-colors ${copied ? 'text-green-600' : 'text-neutral-400 group-hover:text-neutral-900'}`}>
+                      {copied ? 'Copied' : 'Copy All'}
+                    </span>
+                    {copied ? (
+                      <Check className="w-3 x-3 text-green-600" />
+                    ) : (
+                      <Copy className="w-3 h-3 text-neutral-400 group-hover:text-neutral-900" />
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className={`p-6 rounded-2xl border bg-neutral-50/30 transition-all ${result?.detections?.length ? 'border-neutral-200' : 'border-neutral-100 opacity-40'}`}>
+              <div className={`font-devanagari text-2xl leading-loose tracking-[0.2em] text-neutral-900 min-h-[60px] flex flex-wrap gap-x-4 gap-y-2 ${!result?.detections?.length ? 'italic text-[10px] text-neutral-300 flex items-center justify-center uppercase font-sans tracking-widest' : ''}`}>
+                {result?.detections && result.detections.length > 0 ? (
+                  result.detections.map((det, idx) => (
+                    <span key={idx} className="hover:text-amber-600 transition-colors cursor-default">{det.hindi_symbol}</span>
+                  ))
+                ) : (
+                  "Waiting for extraction..."
+                )}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Global Action: Result Summary */}
+        <div className="p-8 border-t border-neutral-100 bg-white">
+          <div className="w-full py-4 rounded-xl border border-neutral-100 bg-neutral-50/30 flex items-center justify-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-neutral-300" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
+              Live Inference Active
+            </span>
+          </div>
+          <p className="mt-4 text-[9px] text-center text-neutral-400 font-medium uppercase tracking-wider">
+            Copy swaras directly from the transcription console above
+          </p>
         </div>
 
         {/* System Terminal Footer */}
@@ -224,9 +293,7 @@ export default function Result() {
             <span className="text-[10px] font-black text-neutral-900 uppercase tracking-[0.3em]">Swara detection</span>
           </div>
           <div className="flex items-center gap-4 text-[9px] font-mono text-neutral-400">
-            {/* <span>LTC: 4ms</span> */}
             <span className="opacity-40">|</span>
-            {/* <span>ID: Swara-GPT-v2</span> */}
           </div>
         </div>
       </aside>
