@@ -81,12 +81,12 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
         img_bytes = io.BytesIO(image_bytes)
         image = Image.open(img_bytes).convert("RGB") # Revert to RGB to preserve detail
         
-        # 1. Tight crop to remove excessive white space around symbol/strip
-        image = _tight_crop_foreground(image)
+        # 1. Crop with slightly larger margin
+        image = _tight_crop_foreground(image, margin=3)
         
-        # 2. Adaptive padding based on symbol size
+        # 2. Padding: 10% of min dimension, at least 8px
         min_dim = min(image.width, image.height)
-        padding = max(4, int(min_dim * 0.05))  # 5% of min dimension, at least 4px
+        padding = max(8, int(min_dim * 0.10))
         new_size = (image.width + padding * 2, image.height + padding * 2)
         padded_image = Image.new("RGB", new_size, (255, 255, 255))
         padded_image.paste(image, (padding, padding))
@@ -94,8 +94,7 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
         
         # 3. Enhance visibility: Balanced Contrast & Original Sharpness
         from PIL import ImageEnhance
-        # REMOVED GaussianBlur to preserve fine symbolic details (dots, accents)
-        image = ImageEnhance.Contrast(image).enhance(1.3) # Slightly higher contrast (1.3)
+        image = ImageEnhance.Contrast(image).enhance(1.3)
         image = ImageEnhance.Sharpness(image).enhance(1.5)
     except Exception as e:
         print(f"Image parsing error: {e}")
@@ -104,8 +103,8 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
     detections = []
     try:
         model = _get_model()
-        # Increased conf to 0.35 to filter out minor noise/false positives
-        results = model.predict(source=image, conf=0.35, imgsz=1024, verbose=False, augment=False)
+        # Lowered conf to 0.25 to allow more detections
+        results = model.predict(source=image, conf=0.25, imgsz=1024, verbose=False, augment=False)
         
         raw_detections = []
         for r in results:
@@ -161,21 +160,44 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
                     conf = min(0.99, calibrated_conf)
                 candidate["confidence"] = conf
                 final_detections.append(candidate)
-        # Filter duplicate swaras at same position (keep highest confidence)
+        # Filter duplicate swaras at same position (keep highest confidence, but allow adjacent swaras)
         filtered = []
         for det in final_detections:
-            overlap_found = False
+            duplicate = False
             for f in filtered:
-                # If boxes overlap > 0.3, keep only highest confidence
-                if compute_iou(det["bbox"], f["bbox"]) > 0.3:
-                    overlap_found = True
+                # Compute center distance
+                cx1 = (det["bbox"][0] + det["bbox"][2]) / 2
+                cy1 = (det["bbox"][1] + det["bbox"][3]) / 2
+                cx2 = (f["bbox"][0] + f["bbox"][2]) / 2
+                cy2 = (f["bbox"][1] + f["bbox"][3]) / 2
+                dist = ((cx1 - cx2) ** 2 + (cy1 - cy2) ** 2) ** 0.5
+                # Only suppress if centers are very close (< 20px)
+                if dist < 20:
+                    duplicate = True
                     if det["confidence"] > f["confidence"]:
                         filtered.remove(f)
                         filtered.append(det)
                     break
-            if not overlap_found:
+            if not duplicate:
                 filtered.append(det)
-        detections = filtered
+
+        # Detect vertical bars (vibhag) and label as 'taal vibhag'
+        results_with_vibhag = []
+        for det in filtered:
+            bbox = det["bbox"]
+            width = bbox[2] - bbox[0]
+            height = bbox[3] - bbox[1]
+            # If aspect ratio is tall (vertical bar), label as vibhag
+            if height > width * 2.5 and width < 0.15 * height:
+                results_with_vibhag.append({
+                    "class_id": -1,
+                    "label": "taal vibhag",
+                    "confidence": 1.0,
+                    "bbox": bbox
+                })
+            else:
+                results_with_vibhag.append(det)
+        detections = results_with_vibhag
 
     except Exception as e:
         print(f"Inference error: {e}")
