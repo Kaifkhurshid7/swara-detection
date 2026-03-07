@@ -161,7 +161,21 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
                     conf = min(0.99, calibrated_conf)
                 candidate["confidence"] = conf
                 final_detections.append(candidate)
-        detections = final_detections
+        # Filter duplicate swaras at same position (keep highest confidence)
+        filtered = []
+        for det in final_detections:
+            overlap_found = False
+            for f in filtered:
+                # If boxes overlap > 0.3, keep only highest confidence
+                if compute_iou(det["bbox"], f["bbox"]) > 0.3:
+                    overlap_found = True
+                    if det["confidence"] > f["confidence"]:
+                        filtered.remove(f)
+                        filtered.append(det)
+                    break
+            if not overlap_found:
+                filtered.append(det)
+        detections = filtered
 
     except Exception as e:
         print(f"Inference error: {e}")
