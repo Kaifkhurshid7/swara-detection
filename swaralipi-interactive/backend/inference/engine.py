@@ -53,6 +53,8 @@ def _tight_crop_foreground(image: Image.Image, white_threshold: int = 245, margi
     if not bbox:
         return image
 
+    # Reduce margin for tighter crop
+    margin = 1
     left, top, right, bottom = bbox
     left = max(0, left - margin)
     top = max(0, top - margin)
@@ -82,8 +84,9 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
         # 1. Tight crop to remove excessive white space around symbol/strip
         image = _tight_crop_foreground(image)
         
-        # 2. Add minimal padding (8px) for edge feature recovery
-        padding = 8
+        # 2. Adaptive padding based on symbol size
+        min_dim = min(image.width, image.height)
+        padding = max(4, int(min_dim * 0.05))  # 5% of min dimension, at least 4px
         new_size = (image.width + padding * 2, image.height + padding * 2)
         padded_image = Image.new("RGB", new_size, (255, 255, 255))
         padded_image.paste(image, (padding, padding))
@@ -118,8 +121,7 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
                     "bbox": xyxy
                 })
         
-        # --- DUPLICATE FILTER (Custom NMS) ---
-        # Sort by confidence so we keep the best detection for each area
+        # --- IMPROVED NMS: Class-aware, consistent confidence ---
         raw_detections.sort(key=lambda x: x["confidence"], reverse=True)
         final_detections = []
         
@@ -137,21 +139,28 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
         for candidate in raw_detections:
             is_duplicate = False
             for confirmed in final_detections:
-                if compute_iou(candidate["bbox"], confirmed["bbox"]) > 0.4: # 40% overlap threshold
+                # Only suppress if same class and overlap
+                if candidate["class_id"] == confirmed["class_id"] and compute_iou(candidate["bbox"], confirmed["bbox"]) > 0.4:
                     is_duplicate = True
                     break
             if not is_duplicate:
-                # Apply Accuracy Calibration for the final confirmed detection
+                # Normalize confidence based on bbox area
                 raw_conf = candidate["confidence"]
-                if raw_conf > 0.4:
-                    calibrated_conf = 0.85 + (raw_conf - 0.4) * (0.13 / 0.5)
-                    conf = min(0.99, calibrated_conf)
+                bbox = candidate["bbox"]
+                area = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
+                # If area is very small or very large, adjust confidence
+                if area < 500:
+                    conf = min(0.99, raw_conf * 0.95)
+                elif area > 20000:
+                    conf = min(0.99, raw_conf * 0.98)
                 else:
-                    conf = raw_conf
-                
+                    conf = min(0.99, raw_conf)
+                # Apply accuracy calibration for all detections
+                if conf > 0.4:
+                    calibrated_conf = 0.85 + (conf - 0.4) * (0.13 / 0.5)
+                    conf = min(0.99, calibrated_conf)
                 candidate["confidence"] = conf
                 final_detections.append(candidate)
-        
         detections = final_detections
 
     except Exception as e:
