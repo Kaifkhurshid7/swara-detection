@@ -140,7 +140,7 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
             is_duplicate = False
             for confirmed in final_detections:
                 # Only suppress if same class and overlap
-                if candidate["class_id"] == confirmed["class_id"] and compute_iou(candidate["bbox"], confirmed["bbox"]) > 0.4:
+                if candidate["class_id"] == confirmed["class_id"] and compute_iou(candidate["bbox"], confirmed["bbox"]) > 0.3:
                     is_duplicate = True
                     break
             if not is_duplicate:
