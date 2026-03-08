@@ -74,7 +74,13 @@ async def analyze(file: UploadFile = File(...)):
     for det in detections_raw:
         cls_id = det["class_id"]
         conf = det["confidence"]
-        info = get_swara_info(cls_id)
+
+        # Special case: taal vibhag (vertical bar separator) detected by engine
+        if cls_id == -1:
+            info = {"english_name": "Taal Vibhag", "hindi_symbol": "|"}
+        else:
+            info = get_swara_info(cls_id)
+
         processed_detections.append({
             "class_id": cls_id,
             "class_name": info["english_name"],
