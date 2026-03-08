@@ -17,15 +17,14 @@ import {
   Database,
   Maximize2,
   CheckCircle2,
-  MousePointer2,
   Layers,
-  Fingerprint,
   Crosshair,
   Copy,
   Check,
   ClipboardList,
   FileCode2,
-  Code2
+  Code2,
+  Cpu
 } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
@@ -101,7 +100,6 @@ export default function Result() {
     [source]
   );
 
-
   const handleCopyNotation = () => {
     if (!result?.detections) return;
     const text = result.detections.map(d => d.hindi_symbol).join(" ");
@@ -122,89 +120,86 @@ export default function Result() {
     downloadFile(text, "swaralipi.txt", "text/plain");
   };
 
-
   if (!source) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <Loader2 className="w-8 h-8 text-neutral-300 animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white font-sans">
+        <Loader2 className="w-12 h-12 text-black animate-spin mb-4" />
+        <span className="text-black font-black uppercase tracking-[0.5em] text-[10px]">Synchronizing_Nodes...</span>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row overflow-hidden font-sans text-neutral-900 selection:bg-neutral-900 selection:text-white">
+    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row overflow-hidden font-sans text-neutral-900 selection:bg-black selection:text-white">
 
       {/* LEFT PANEL: SYSTEM CONSOLE */}
-      <aside className="w-full lg:w-[480px] bg-white border-r border-neutral-200 flex flex-col relative z-20">
+      <aside className="w-full lg:w-[480px] bg-white border-r-4 border-black flex flex-col relative z-20">
 
-        {/* Module Header */}
-        <div className="p-8 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/50">
+        <div className="p-8 border-b-4 border-black flex items-center justify-between bg-neutral-50/50">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-md bg-white border border-neutral-200 flex items-center justify-center shadow-sm">
-              <Terminal className="w-5 h-5 text-neutral-600" />
+            <div className="w-12 h-12 bg-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
+              <Terminal className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 leading-none mb-1">Analysis</h2>
-              <p className="text-[10px] text-neutral-400 font-medium uppercase tracking-wider">Model YOLOv8 — </p>
+              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-900 leading-none mb-1">Inference_Node</h2>
+              <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                <Cpu className="w-3 h-3" /> YOLOv8_Engine_Active
+              </p>
             </div>
           </div>
           <button
             onClick={() => navigate("/scan")}
-            className="p-2.5 rounded-lg border border-neutral-200 text-neutral-400 hover:text-neutral-900 hover:bg-white transition-all shadow-sm"
+            className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-12 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
 
-          {/* OPERATION CONSOLE: INTERACTIVE PIPELINE */}
           <section className="space-y-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Layers className="w-3.5 h-3.5 text-neutral-400" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Execution Pipeline</h3>
+            <div className="flex items-center gap-3">
+              <Layers className="w-4 h-4 text-black" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Sequence_Protocol</h3>
             </div>
 
             <div className="relative space-y-4">
-              {/* Step 1: Spatial Selection */}
-              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${!crop ? 'bg-white border-neutral-200 shadow-sm' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${!crop ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
+              <div className={`flex items-start gap-5 p-6 border-2 transition-all duration-300 ${!crop ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
+                <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${!crop ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
                 <div className="flex-1">
-                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${!crop ? 'text-neutral-900' : 'text-neutral-500'}`}>Spatial Selection</h4>
-                  <p className={`text-[11px] leading-relaxed font-medium ${!crop ? 'text-neutral-600' : 'text-neutral-400'}`}>Define the coordinate boundaries for notation extraction on the workforce feed.</p>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Spatial Selection</h4>
+                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">Isolate ROI for neural weight mapping.</p>
                 </div>
-                {crop ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : <MousePointer2 className="w-4 h-4 text-neutral-900 mt-1 animate-pulse" />}
+                {crop && <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" />}
               </div>
 
-              {/* Step 2: Neural Synthesis */}
-              <div className={`flex items-start gap-5 p-6 rounded-2xl border transition-all duration-500 ${crop && !result ? 'bg-white border-neutral-200 shadow-sm' : 'bg-neutral-50 border-neutral-100 opacity-60'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold ${crop && !result ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
+              <div className={`flex items-start gap-5 p-6 border-2 transition-all duration-300 ${crop && !result ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
+                <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${crop && !result ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
                 <div className="flex-1">
-                  <h4 className={`text-[12px] font-bold uppercase tracking-widest mb-1.5 ${crop && !result ? 'text-neutral-900' : 'text-neutral-500'}`}>Neural Synthesis</h4>
-                  <p className={`text-[11px] leading-relaxed font-medium ${crop && !result ? 'text-neutral-600' : 'text-neutral-400'}`}>Execute localized weight mapping and sequential swara classification via YOLOv8 kernel.</p>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Neural Synthesis</h4>
+                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">Executing sequential swara classification.</p>
                 </div>
-                {loading ? <Loader2 className="w-5 h-5 text-neutral-900 mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-neutral-900 mt-1" /> : null}
+                {loading ? <Loader2 className="w-5 h-5 text-emerald-500 mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" /> : null}
               </div>
             </div>
           </section>
 
-          {/* TELEMETRY CONSOLE: LIVE STREAM */}
           <section className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-2 mb-6">
-              <Database className="w-3.5 h-3.5 text-neutral-400" />
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Predicted Swara</h3>
+            <div className="flex items-center gap-3 mb-6">
+              <Database className="w-4 h-4 text-black" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Detections</h3>
             </div>
 
             <div className="space-y-4">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-4 border-2 border-dashed border-neutral-100 rounded-[2.5rem] bg-neutral-50/50">
-                  <Fingerprint className="w-10 h-10 text-neutral-200 animate-pulse" />
-                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.4em]">Decoding ROI Layer...</span>
+                <div className="flex flex-col items-center justify-center py-16 gap-4 border-4 border-dashed border-neutral-100 bg-neutral-50/50">
+                  <Loader2 className="w-12 h-12 text-black animate-spin" />
+                  <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.5em]">De-Convolution In Progress...</span>
                 </div>
               ) : result ? (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {result.detections && result.detections.length > 0 ? (
-                    <div className="flex flex-wrap gap-4 items-center justify-center">
+                    <div className="flex flex-wrap gap-4 items-center justify-center p-6 border-2 border-black bg-neutral-50">
                       {result.detections.map((det, idx) => (
                         <div key={idx} className="flex items-center gap-4">
                           <NeuralTooltip
@@ -214,184 +209,180 @@ export default function Result() {
                             inline
                           />
                           {idx < (result.detections?.length || 0) - 1 && (
-                            <div className="text-neutral-200 text-xs font-mono">→</div>
+                            <div className="text-black font-black text-xs">→</div>
                           )}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="border border-neutral-100 rounded-3xl py-12 px-8 text-center bg-neutral-50/50">
-                      <p className="text-[11px] font-medium text-neutral-400 leading-relaxed italic uppercase tracking-widest">
-                        Zero patterns detected <br />
-                        <span className="normal-case opacity-60">Adjust the ROI to include black notation ink</span>
+                    <div className="border-4 border-dashed border-neutral-200 p-10 text-center">
+                      <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest leading-loose">
+                        Null Stream <br />
+                        <span className="text-red-500">[ Recalibrate ROI ]</span>
                       </p>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-neutral-100 rounded-[2.5rem] py-20 px-8 text-center bg-neutral-50/30">
-                  <p className="text-[11px] font-bold text-neutral-300 uppercase tracking-[0.2em] leading-loose italic">
-                    Awaiting Target Definition <br />
-                    <span className="normal-case font-medium text-neutral-400">Initialize spatial selection on the workbench</span>
+                <div className="border-4 border-dashed border-neutral-100 py-16 px-8 text-center">
+                  <p className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.4em] leading-loose italic">
+                    Waiting for Input... <br />
+                    <span className="normal-case text-neutral-400 font-bold">Initialize workbench coordinates</span>
                   </p>
-                </div>
-              )}
-
-              {result?.message && !loading && (
-                <div className={`rounded-2xl p-6 border mt-6 ${result.success === false ? "bg-red-50/50 border-red-100 text-red-700" : "bg-neutral-50 border-neutral-100 text-neutral-600"}`}>
-                  <div className="flex items-center gap-3 mb-2 opacity-60">
-                    <AlertCircle className="w-4 h-4" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em]">Protocol Log</span>
-                  </div>
-                  <p className="text-[11px] leading-relaxed font-medium font-mono tracking-tight">{result.message}</p>
                 </div>
               )}
             </div>
           </section>
 
-          {/* TRANSCRIPTION CONSOLE: TEXT EXTRACTION */}
           <section className="space-y-6 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <ClipboardList className="w-3.5 h-3.5 text-neutral-400" />
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Neuro-Transcription</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ClipboardList className="w-4 h-4 text-black" />
+                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Transcription</h3>
               </div>
               {result?.detections && result.detections.length > 0 && (
                 <div className="flex items-center gap-4">
-                  <button onClick={handleExportXML} className="flex items-center gap-1.5 group" title="Export MusicXML">
-                    <FileCode2 className="w-3 h-3 text-neutral-400 group-hover:text-amber-600 transition-colors" />
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-hover:text-amber-600 transition-colors">XML</span>
+                  <button onClick={handleExportXML} className="flex items-center gap-1.5 group">
+                    <FileCode2 className="w-4 h-4 text-neutral-400 group-hover:text-amber-500 transition-colors" />
+                    <span className="text-[10px] font-black text-neutral-400 uppercase">XML</span>
                   </button>
-                  <button onClick={handleExportText} className="flex items-center gap-1.5 group" title="Export Text">
-                    <Code2 className="w-3 h-3 text-neutral-400 group-hover:text-blue-600 transition-colors" />
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-hover:text-blue-600 transition-colors">TXT</span>
+                  <button onClick={handleExportText} className="flex items-center gap-1.5 group">
+                    <Code2 className="w-4 h-4 text-neutral-400 group-hover:text-blue-500 transition-colors" />
+                    <span className="text-[10px] font-black text-neutral-400 uppercase">TXT</span>
                   </button>
-                  <div className="w-px h-3 bg-neutral-200" />
-                  <button
-                    onClick={handleCopyNotation}
-                    className="flex items-center gap-2 group"
-                  >
-                    <span className={`text-[9px] font-bold uppercase tracking-widest transition-colors ${copied ? 'text-green-600' : 'text-neutral-400 group-hover:text-neutral-900'}`}>
-                      {copied ? 'Copied' : 'Copy All'}
+                  <div className="w-[2px] h-4 bg-neutral-200" />
+                  <button onClick={handleCopyNotation} className="flex items-center gap-2 group">
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${copied ? 'text-emerald-600' : 'text-neutral-400 group-hover:text-black'}`}>
+                      {copied ? 'Copied' : 'Copy'}
                     </span>
-                    {copied ? (
-                      <Check className="w-3 x-3 text-green-600" />
-                    ) : (
-                      <Copy className="w-3 h-3 text-neutral-400 group-hover:text-neutral-900" />
-                    )}
+                    {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-neutral-400 group-hover:text-black" />}
                   </button>
                 </div>
               )}
             </div>
 
-            <div className={`p-6 rounded-2xl border bg-neutral-50/30 transition-all ${result?.detections?.length ? 'border-neutral-200' : 'border-neutral-100 opacity-40'}`}>
-              <div className={`font-devanagari text-2xl leading-loose tracking-[0.2em] text-neutral-900 min-h-[60px] flex flex-wrap gap-x-4 gap-y-2 ${!result?.detections?.length ? 'italic text-[10px] text-neutral-300 flex items-center justify-center uppercase font-sans tracking-widest' : ''}`}>
+            <div className={`p-8 border-4 border-black bg-white transition-all ${result?.detections?.length ? 'opacity-100' : 'opacity-20'}`}>
+              <div className="font-devanagari text-4xl leading-loose tracking-[0.3em] text-neutral-900 min-h-[60px] flex flex-wrap gap-x-8 gap-y-4">
                 {result?.detections && result.detections.length > 0 ? (
                   result.detections.map((det, idx) => (
-                    <span key={idx} className="hover:text-amber-600 transition-colors cursor-default">{det.hindi_symbol}</span>
+                    <span key={idx} className="hover:text-emerald-500 transition-colors cursor-default select-none">{det.hindi_symbol}</span>
                   ))
                 ) : (
-                  "Waiting for extraction..."
+                  <span className="text-xs font-black uppercase tracking-[0.5em] text-neutral-300 italic">No_Data</span>
                 )}
               </div>
             </div>
           </section>
         </div>
-
-        {/* Global Action: Result Summary */}
-        <div className="p-8 border-t border-neutral-100 bg-white">
-          <div className="w-full py-4 rounded-xl border border-neutral-100 bg-neutral-50/30 flex items-center justify-center gap-2">
-            {/* <div className="w-2 h-2 rounded-full bg-neutral-300" /> */}
-            {/* <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
-              Live Inference Active
-            </span> */}
-          </div>
-          <p className="mt-4 text-[9px] text-center text-neutral-400 font-medium uppercase tracking-wider">
-            Copy swaras directly from the transcription console above
-          </p>
-        </div>
-
-        {/* System Terminal Footer */}
-        <div className="p-8 border-t border-neutral-100 bg-neutral-50/50 flex items-center justify-between">
+        {/* 
+        <div className="p-8 border-t-4 border-black bg-neutral-900 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-neutral-900 shadow-[0_0_8px_rgba(0,0,0,0.2)]" />
-            <span className="text-[10px] font-black text-neutral-900 uppercase tracking-[0.3em]">Swara detection</span>
+            <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em]">Node_Sync: OK</span>
           </div>
-          <div className="flex items-center gap-4 text-[9px] font-mono text-neutral-400">
-            <span className="opacity-40">|</span>
-          </div>
-        </div>
+          <p className="text-[9px] font-bold text-neutral-400 uppercase">Kernel_v4.0.2</p>
+        </div> */}
       </aside>
 
       {/* RIGHT PANEL: VISUAL WORKBENCH */}
       <main className="flex-1 p-8 lg:p-12 flex flex-col relative bg-[#F8F9FA]">
-
-        {/* Engineering Grid Layer */}
-        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+        <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} />
 
         <div className="relative z-10 flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-neutral-400 shadow-sm" />
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Workspace</h3>
+            <div className="w-3 h-3 bg-black" />
+            <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-black">Precision_Workspace</h3>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <Crosshair className="w-3 h-3 text-neutral-300" />
-              <span className="text-[9px] font-mono text-neutral-500">
-                {crop ? `X:${Math.round(crop.x)} Y:${Math.round(crop.y)}` : '0.00, 0.00'}
+          <div className="flex items-center gap-8 bg-white border-2 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-3 border-r-2 border-neutral-100 pr-6">
+              <Crosshair className="w-4 h-4 text-black" />
+              <span className="text-[10px] font-black font-mono uppercase">
+                {crop ? `${Math.round(crop.x)} : ${Math.round(crop.y)}` : '00 : 00'}
               </span>
             </div>
-            <Maximize2 className="w-3.5 h-3.5 text-neutral-300 hover:text-neutral-900 cursor-pointer transition-colors" />
+            <Maximize2 className="w-4 h-4 text-black hover:scale-110 cursor-pointer transition-transform" />
           </div>
         </div>
 
-        {/* Image Container */}
-        <div className="relative z-10 flex-1 bg-white border border-neutral-200 shadow-[0_4px_24px_rgba(0,0,0,0.02)] rounded-2xl p-8 flex items-center justify-center overflow-auto">
+        <div className="relative z-10 flex-1 bg-white border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,0.05)] p-8 flex items-center justify-center overflow-auto">
           <ReactCrop
             crop={crop}
             onChange={(_, percentCrop) => setCrop(percentCrop)}
             onComplete={onComplete}
-            className="max-w-full"
+            className="max-w-full no-greyscale-crop"
           >
             <img
               ref={imgRef}
               src={source}
-              alt="Notation Feed"
-              className="max-h-[68vh] w-auto transition-all duration-700 grayscale-[0.1]"
+              alt="Manuscript"
+              className="max-h-[65vh] w-auto transition-all duration-500 manuscript-target"
               style={{ maxWidth: "100%" }}
               crossOrigin="anonymous"
             />
           </ReactCrop>
         </div>
-
-        {/* Interaction Bar */}
-        <div className="relative z-10 mt-8 flex justify-center">
-          <div className="px-6 py-3 rounded-xl border border-neutral-200 bg-white shadow-sm flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${loading ? 'bg-amber-500 animate-pulse' : 'bg-neutral-900'}`} />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-900">ROI: {crop ? 'Active' : 'Awaiting'}</span>
+        {/* 
+        <div className="relative z-10 mt-10 flex justify-center">
+          <div className="px-8 py-4 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center gap-8">
+            <div className="flex items-center gap-3">
+              <div className={`w-3 h-3 rounded-full ${loading ? 'bg-amber-500 animate-pulse' : 'bg-black'}`} />
+              <span className="text-[11px] font-black uppercase tracking-widest">ROI_{crop ? 'LOCKED' : 'AWAITING'}</span>
             </div>
-            <div className="w-[1px] h-4 bg-neutral-100" />
-            <p className="text-[10px] font-medium text-neutral-400 uppercase tracking-[0.15em] italic">
-              Define coordinate boundaries to trigger inference engine
+            <div className="w-[2px] h-6 bg-black" />
+            <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest italic">
+              Define manuscript boundaries to trigger neural handshake
             </p>
           </div>
-        </div>
+        </div> */}
       </main>
 
       <style>{`
+        /* THE "HARD RESET" CSS */
+        
+        /* 1. Stop any grayscale filtering on the image itself */
+        .manuscript-target {
+          filter: none !important;
+          -webkit-filter: none !important;
+          opacity: 1 !important;
+        }
+
+        /* 2. Kill the dark overlay that causes the "greyscale" look */
+        .ReactCrop__overlay, .ReactCrop__crop-mask {
+          display: none !important;
+          background-color: transparent !important;
+          opacity: 0 !important;
+        }
+
+        /* 3. Ensure the selection box doesn't dim the background */
         .ReactCrop__crop-selection {
-          border: none !important;
-          box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.8) !important;
-          border-radius: 4px !important;
+          border: 3px solid #000 !important;
+          box-shadow: none !important; 
+          border-radius: 0px !important;
+          background-color: transparent !important;
         }
+
+        /* 4. Ensure the child container doesn't have a background color */
+        .ReactCrop__child-wrapper {
+          background-color: transparent !important;
+        }
+
+        .ReactCrop__crop-selection:after {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          border: 1px dashed #fff;
+          pointer-events: none;
+        }
+
         .ReactCrop__drag-handle {
-          width: 7px !important;
-          height: 7px !important;
-          background-color: #171717 !important;
-          border-radius: 50% !important;
+          width: 10px !important;
+          height: 10px !important;
+          background-color: #000 !important;
+          border: 1px solid #fff !important;
+          border-radius: 0% !important;
         }
+        
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
