@@ -300,11 +300,11 @@ export default function Result() {
 
         {/* Global Action: Result Summary */}
         <div className="p-8 border-t border-neutral-100 bg-white">
-          <div className="w-full py-4 rounded-xl border border-neutral-100 bg-neutral-50/30 flex items-center justify-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-neutral-300" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
+          <div className="w-full py-4 rounded-xl border border-neutral-100 bg-neutral-50/30 flex items-center justify-center gap-2">
+            {/* <div className="w-2 h-2 rounded-full bg-neutral-300" /> */}
+            {/* <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">
               Live Inference Active
-            </span>
+            </span> */}
           </div>
           <p className="mt-4 text-[9px] text-center text-neutral-400 font-medium uppercase tracking-wider">
             Copy swaras directly from the transcription console above

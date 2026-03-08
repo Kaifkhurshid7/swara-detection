@@ -84,8 +84,8 @@ export default function Home() {
                 <Code2 className="w-7 h-7" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Parser Engine</h2>
-                <p className="text-neutral-400 text-xs mt-1 font-medium">Import external XML or LaTeX syntax directly.</p>
+                <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Parser converter</h2>
+                <p className="text-neutral-400 text-xs mt-1 font-medium">Import external XML directly.</p>
               </div>
             </div>
             <div className="w-10 h-10 rounded-full border border-neutral-100 flex items-center justify-center group-hover:bg-neutral-900 group-hover:text-white transition-all">
