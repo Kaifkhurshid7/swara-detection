@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Music2, ScanLine, History, Binary } from "lucide-react";
+import { Music2, ScanLine, Binary } from "lucide-react";
 
 export default function Navbar() {
   const location = useLocation();

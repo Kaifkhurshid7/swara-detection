@@ -1,4 +1,4 @@
-import { X, Zap } from "lucide-react";
+import { X } from "lucide-react";
 
 interface NeuralTooltipProps {
   hindiSymbol: string;

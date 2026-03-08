@@ -33,6 +33,10 @@ def normalize_base64(s: str) -> str:
 class AnalyzeRequest(BaseModel):
     image_base64: str
 
+class ImportRequest(BaseModel):
+    format: str
+    content: str
+
 @app.on_event("startup")
 def startup():
     init_db()
@@ -127,3 +131,19 @@ def history():
     for r in rows:
         r["hindi_symbol"] = get_swara_info(r["class_id"])["hindi_symbol"]
     return {"success": True, "scans": rows}
+
+@app.post("/import")
+async def import_notation(req: ImportRequest):
+    from import_parser import parse_musicxml
+    
+    swaras = []
+    if req.format == "musicxml":
+        swaras = parse_musicxml(req.content)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported format")
+        
+    return {
+        "success": True,
+        "swaras": swaras
+    }
+

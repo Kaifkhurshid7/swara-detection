@@ -80,6 +80,16 @@ export interface HistoryResponse {
   scans: HistoryScan[];
 }
 
+
+export interface ImportResponse {
+  success: boolean;
+  swaras: {
+    class_id: number;
+    english_name: string;
+    hindi_symbol: string;
+  }[];
+}
+
 export async function analyzeCrop(imageBlob: Blob): Promise<AnalyzeResponse> {
   const formData = new FormData();
   formData.append("file", imageBlob, "image.png");
@@ -94,5 +104,11 @@ export async function analyzeCrop(imageBlob: Blob): Promise<AnalyzeResponse> {
 
 export async function getHistory(): Promise<HistoryResponse> {
   const { data } = await client.get<HistoryResponse>("/history");
+  return data;
+}
+
+
+export async function importNotation(format: "musicxml", content: string): Promise<ImportResponse> {
+  const { data } = await client.post<ImportResponse>("/import", { format, content });
   return data;
 }

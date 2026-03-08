@@ -1,14 +1,13 @@
 import { Link } from "react-router-dom";
 import {
   ScanLine,
-  History,
   ArrowRight,
   Database,
-  Zap,
   Microscope,
   Music2,
   Info,
-  ExternalLink
+  ExternalLink,
+  Code2
 } from "lucide-react";
 
 export default function Home() {
@@ -68,6 +67,25 @@ export default function Home() {
               <div>
                 <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Dataset Archive</h2>
                 <p className="text-neutral-400 text-xs mt-1 font-medium">Review historical inference logs.</p>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-full border border-neutral-100 flex items-center justify-center group-hover:bg-neutral-900 group-hover:text-white transition-all">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
+
+
+          <Link
+            to="/import"
+            className="group flex items-center justify-between p-8 rounded-3xl border border-neutral-200 bg-white hover:border-neutral-900 transition-all duration-500 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]"
+          >
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500">
+                <Code2 className="w-7 h-7" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Parser Engine</h2>
+                <p className="text-neutral-400 text-xs mt-1 font-medium">Import external XML or LaTeX syntax directly.</p>
               </div>
             </div>
             <div className="w-10 h-10 rounded-full border border-neutral-100 flex items-center justify-center group-hover:bg-neutral-900 group-hover:text-white transition-all">

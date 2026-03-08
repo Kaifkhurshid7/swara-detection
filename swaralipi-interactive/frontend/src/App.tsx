@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Scanner from "./pages/Scanner";
 import Result from "./pages/Result";
 import History from "./pages/History";
+import Import from "./pages/Import";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/scan" element={<Scanner />} />
           <Route path="/result" element={<Result />} />
           <Route path="/history" element={<History />} />
+          <Route path="/import" element={<Import />} />
         </Routes>
       </main>
     </div>

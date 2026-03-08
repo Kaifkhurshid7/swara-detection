@@ -7,6 +7,7 @@ import {
   getUserFacingApiError,
   type AnalyzeResponse
 } from "../api/client";
+import { exportToMusicXML, exportToText, downloadFile } from "../utils/exportNotation";
 import NeuralTooltip from "../components/NeuralTooltip";
 import {
   Loader2,
@@ -22,7 +23,9 @@ import {
   Crosshair,
   Copy,
   Check,
-  ClipboardList
+  ClipboardList,
+  FileCode2,
+  Code2
 } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
@@ -106,6 +109,19 @@ export default function Result() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const handleExportXML = () => {
+    if (!result?.detections) return;
+    const xml = exportToMusicXML([result.detections]);
+    downloadFile(xml, "swaralipi.musicxml", "application/vnd.recordare.musicxml+xml");
+  };
+
+  const handleExportText = () => {
+    if (!result?.detections) return;
+    const text = exportToText([result.detections]);
+    downloadFile(text, "swaralipi.txt", "text/plain");
+  };
+
 
   if (!source) {
     return (
@@ -242,6 +258,15 @@ export default function Result() {
               </div>
               {result?.detections && result.detections.length > 0 && (
                 <div className="flex items-center gap-4">
+                  <button onClick={handleExportXML} className="flex items-center gap-1.5 group" title="Export MusicXML">
+                    <FileCode2 className="w-3 h-3 text-neutral-400 group-hover:text-amber-600 transition-colors" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-hover:text-amber-600 transition-colors">XML</span>
+                  </button>
+                  <button onClick={handleExportText} className="flex items-center gap-1.5 group" title="Export Text">
+                    <Code2 className="w-3 h-3 text-neutral-400 group-hover:text-blue-600 transition-colors" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 group-hover:text-blue-600 transition-colors">TXT</span>
+                  </button>
+                  <div className="w-px h-3 bg-neutral-200" />
                   <button
                     onClick={handleCopyNotation}
                     className="flex items-center gap-2 group"
