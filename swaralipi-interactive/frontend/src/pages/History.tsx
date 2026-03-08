@@ -1,23 +1,28 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getHistory, getUserFacingApiError, type HistoryScan } from "../api/client";
-import { 
-  Loader2, 
-  Music2, 
-  AlertCircle, 
-  Clock, 
-  Database, 
-  FileSearch, 
-  ChevronRight, 
-  Hash, 
-  BarChart3 
+import {
+  Loader2,
+  Music2,
+  AlertCircle,
+  Clock,
+  Database,
+  FileSearch,
+  ChevronRight,
+  Hash,
+  BarChart3,
+  ArrowLeft,
+  Terminal,
+  Cpu,
+  History as HistoryIcon
 } from "lucide-react";
 
 function formatTime(iso: string) {
   try {
     const d = new Date(iso);
-    return d.toLocaleString(undefined, { 
-      dateStyle: "medium", 
-      timeStyle: "short" 
+    return d.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short"
     });
   } catch {
     return iso;
@@ -25,6 +30,7 @@ function formatTime(iso: string) {
 }
 
 export default function History() {
+  const navigate = useNavigate();
   const [scans, setScans] = useState<HistoryScan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,155 +44,156 @@ export default function History() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 text-neutral-300 animate-spin" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Retrieving Archive</span>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white font-sans">
+        <Loader2 className="w-12 h-12 text-black animate-spin mb-4" />
+        <span className="text-black font-black uppercase tracking-[0.5em] text-[10px]">Accessing_Archives...</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] relative overflow-hidden font-sans text-neutral-900">
-      {/* Engineering Grid Texture */}
-      <div 
-        className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" 
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} 
-      />
+    <div className="min-h-screen bg-[#FDFDFD] relative flex flex-col overflow-hidden font-sans text-neutral-900 selection:bg-black selection:text-white">
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-12 lg:py-20">
-        
-        {/* Header Section */}
-        <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-neutral-100 pb-10">
+      {/* HEADER: MATCHING THE RESULT PAGE SYSTEM BAR */}
+      <nav className="w-full bg-white border-b-4 border-black flex items-center justify-between p-8 relative z-20">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(59,130,246,1)]">
+            <HistoryIcon className="w-6 h-6 text-blue-400" />
+          </div>
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-neutral-900 rounded-lg">
-                <Database className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Data Repository</span>
-            </div>
-            <h1 className="text-4xl font-black text-neutral-900 tracking-tight">Scan History</h1>
-            <p className="text-sm text-neutral-500 mt-2 font-medium">Historical record of all neural inference operations.</p>
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-900 leading-none mb-1">Archival_Node</h2>
+            <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
+              <Database className="w-3 h-3" /> System_Logs_Active
+            </p>
           </div>
+        </div>
 
-          <div className="flex items-center gap-8">
-            <div className="text-right">
-              <span className="block text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Total Logs</span>
-              <span className="text-2xl font-mono font-bold text-neutral-900">{scans.length.toString().padStart(3, '0')}</span>
-            </div>
-            <div className="w-px h-10 bg-neutral-200" />
-            <div className="text-right">
-              <span className="block text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">System Status</span>
-              <span className="text-xs font-bold text-emerald-500 uppercase flex items-center gap-2 justify-end">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Operational
-              </span>
-            </div>
+        <div className="flex items-center gap-6">
+          <div className="hidden md:block text-right pr-6 border-r-2 border-neutral-100">
+            <span className="block text-[9px] font-black text-neutral-400 uppercase tracking-widest">Entry_Count</span>
+            <span className="text-xl font-mono font-black text-neutral-900">{scans.length.toString().padStart(3, '0')}</span>
           </div>
-        </header>
+          <button
+            onClick={() => navigate("/scan")}
+            className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+        </div>
+      </nav>
 
-        {/* Main Content Area */}
-        <main>
+      <main className="flex-1 relative p-6 lg:p-12 overflow-y-auto scrollbar-hide">
+        {/* Engineering Grid Overlay */}
+        <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto">
+
           {error ? (
-            <div className="rounded-2xl border border-red-100 bg-red-50/50 p-8 flex flex-col items-center text-center">
-              <AlertCircle className="w-8 h-8 text-red-400 mb-4" />
-              <h3 className="text-sm font-bold text-red-900 uppercase tracking-wider mb-2">Interface Interrupted</h3>
-              <p className="text-xs text-red-700 max-w-md leading-relaxed mb-6">{error}</p>
-              <div className="px-4 py-2 bg-white border border-red-100 rounded-lg text-[10px] font-mono text-red-500">
-                ERR_BACKEND_UNREACHABLE: Check run-backend.bat
+            <div className="border-4 border-black bg-white p-12 shadow-[12px_12px_0px_0px_rgba(239,68,68,1)] flex flex-col items-center text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mb-6" />
+              <h3 className="text-xl font-black text-black uppercase tracking-tighter mb-2">Interface_Failure</h3>
+              <p className="text-xs text-neutral-500 font-bold max-w-md leading-relaxed mb-8">{error}</p>
+              <div className="px-6 py-3 border-2 border-black bg-neutral-50 font-mono text-[10px] font-black uppercase tracking-widest">
+                Kernel_Message: Check_Backend_Service
               </div>
             </div>
           ) : scans.length === 0 ? (
-            <div className="rounded-[2.5rem] border-2 border-dashed border-neutral-100 p-20 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-neutral-50 flex items-center justify-center mb-6">
-                <FileSearch className="w-8 h-8 text-neutral-200" />
-              </div>
-              <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">No archival data found</p>
-              <p className="text-xs text-neutral-400 mt-2 italic">Initiate a spatial scan on the workbench to populate history.</p>
+            <div className="border-4 border-dashed border-neutral-200 bg-white/50 p-24 flex flex-col items-center text-center">
+              <FileSearch className="w-16 h-16 text-neutral-200 mb-6" />
+              <p className="text-xs font-black text-neutral-300 uppercase tracking-[0.4em]">Empty_Data_Stream</p>
+              <p className="text-[10px] text-neutral-400 mt-4 font-bold uppercase">No records found in local storage node.</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-6">
               {scans.map((s, idx) => (
-                <div 
-                  key={s.id} 
-                  className="group relative bg-white border border-neutral-200 rounded-2xl p-5 flex flex-col md:flex-row items-center gap-6 transition-all hover:shadow-xl hover:shadow-neutral-200/50 hover:border-neutral-300"
+                <div
+                  key={s.id}
+                  className="group bg-white border-4 border-black p-6 flex flex-col md:flex-row items-center gap-8 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
                 >
-                  {/* Image Profile */}
-                  <div className="relative flex-shrink-0">
-                    <div className="absolute -top-2 -left-2 w-6 h-6 rounded bg-neutral-900 flex items-center justify-center text-[10px] font-mono text-white z-10">
+                  {/* Image/Index Section */}
+                  <div className="relative">
+                    <div className="absolute -top-3 -left-3 w-8 h-8 bg-black flex items-center justify-center text-[10px] font-black text-white z-10">
                       {(scans.length - idx).toString().padStart(2, '0')}
                     </div>
-                    {s.image_crop_base64 ? (
-                      <img
-                        src={`data:image/png;base64,${s.image_crop_base64}`}
-                        alt="Crop metadata"
-                        className="w-24 h-24 rounded-xl object-cover border border-neutral-100 grayscale hover:grayscale-0 transition-all duration-500"
-                      />
-                    ) : (
-                      <div className="w-24 h-24 rounded-xl bg-neutral-50 flex items-center justify-center border border-neutral-100">
-                        <Music2 className="w-6 h-6 text-neutral-200" />
-                      </div>
-                    )}
+                    <div className="w-32 h-32 border-2 border-black overflow-hidden bg-neutral-50">
+                      {s.image_crop_base64 ? (
+                        <img
+                          src={`data:image/png;base64,${s.image_crop_base64}`}
+                          alt="Scan Metadata"
+                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Music2 className="w-8 h-8 text-neutral-200" />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Primary Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
+                  {/* Identification Section */}
+                  <div className="flex-1 text-center md:text-left">
+                    <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
                       <Clock className="w-3 h-3 text-neutral-400" />
-                      <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{formatTime(s.timestamp)}</span>
+                      <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">{formatTime(s.timestamp)}</span>
                     </div>
-                    <div className="flex items-baseline gap-4">
-                      <h2 className="text-4xl font-serif text-neutral-900">{s.hindi_symbol || '∅'}</h2>
-                      <div className="h-4 w-px bg-neutral-200" />
-                      <span className="text-sm font-bold text-neutral-800 uppercase tracking-tighter">
-                        {s.class_name || 'Unclassified'}
-                      </span>
+                    <div className="flex flex-col md:flex-row md:items-end gap-2 md:gap-6">
+                      <h2 className="text-6xl font-black text-black leading-none">{s.hindi_symbol || '∅'}</h2>
+                      <div className="h-px md:h-8 w-full md:w-[4px] bg-neutral-100 md:bg-black mb-2" />
+                      <div className="pb-1">
+                        <span className="text-[10px] block font-black text-neutral-400 uppercase tracking-[0.2em] mb-1">Classification</span>
+                        <span className="text-lg font-black text-black uppercase tracking-tighter">
+                          {s.class_name || 'Undefined'}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Metadata Stats */}
-                  <div className="w-full md:w-auto flex items-center gap-4">
-                    <div className="px-4 py-3 rounded-xl bg-neutral-50 border border-neutral-100 flex-1 md:flex-none min-w-[120px]">
-                      <div className="flex items-center gap-2 mb-1">
-                        <BarChart3 className="w-3 h-3 text-neutral-400" />
-                        <span className="text-[9px] font-bold text-neutral-400 uppercase">Confidence</span>
+                  {/* Confidence / Action Section */}
+                  <div className="flex flex-col sm:flex-row items-center gap-6 w-full md:w-auto">
+                    <div className="w-full sm:w-48 p-4 border-2 border-black bg-neutral-50">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <BarChart3 className="w-3 h-3 text-black" />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Precision</span>
+                        </div>
+                        <span className="text-xs font-mono font-black">{Math.round(s.confidence * 100)}%</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                         <span className="text-sm font-mono font-bold text-neutral-900">
-                           {Math.round(s.confidence * 100)}%
-                         </span>
-                         <div className="flex-1 h-1 bg-neutral-200 rounded-full overflow-hidden min-w-[40px]">
-                            <div 
-                              className="h-full bg-neutral-900" 
-                              style={{ width: `${s.confidence * 100}%` }} 
-                            />
-                         </div>
+                      <div className="h-3 bg-white border-2 border-black p-[2px]">
+                        <div
+                          className="h-full bg-emerald-400 border-r border-black"
+                          style={{ width: `${s.confidence * 100}%` }}
+                        />
                       </div>
                     </div>
 
-                    <button className="p-4 rounded-xl border border-neutral-100 hover:bg-neutral-900 hover:text-white transition-all group-hover:border-neutral-900">
-                      <ChevronRight className="w-5 h-5" />
+                    <button className="w-full sm:w-auto p-4 border-4 border-black bg-white hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1">
+                      <ChevronRight className="w-6 h-6" />
                     </button>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </main>
+        </div>
+      </main>
 
-        <footer className="mt-20 pt-10 border-t border-neutral-100 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                    <Hash className="w-3 h-3 text-neutral-300" />
-                    <span className="text-[10px] font-mono text-neutral-400 italic">ARCHIVE_AUTH_v4</span>
-                </div>
-            </div>
-            <p className="text-[10px] font-bold text-neutral-300 uppercase tracking-widest">
-                Data generated via Swaralipi Neural Pipeline
-            </p>
-        </footer>
-      </div>
+      {/* FOOTER: SYSTEM STATUS BAR */}
+      <footer className="p-8 border-t-4 border-black bg-neutral-900 text-white flex flex-col md:flex-row justify-between items-center gap-6 relative z-20">
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em]">Auth_Node: Verified</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Hash className="w-3 h-3 text-neutral-500" />
+            <span className="text-[9px] font-mono text-neutral-400 uppercase tracking-widest">Archive_UUID: {Math.random().toString(36).substring(7).toUpperCase()}</span>
+          </div>
+        </div>
+        <p className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.5em]">
+          Swaralipi_Neural_Archive_v1.0
+        </p>
+      </footer>
 
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
