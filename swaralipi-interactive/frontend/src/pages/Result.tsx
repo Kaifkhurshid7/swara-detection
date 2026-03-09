@@ -12,7 +12,6 @@ import NeuralTooltip from "../components/NeuralTooltip";
 import {
   Loader2,
   ArrowLeft,
-  AlertCircle,
   Terminal,
   Database,
   Maximize2,
@@ -62,7 +61,25 @@ export default function Result() {
   const [crop, setCrop] = useState<Crop | undefined>();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [accumulatedDetections, setAccumulatedDetections] = useState<NonNullable<AnalyzeResponse["detections"]>>([]);
   const [copied, setCopied] = useState(false);
+
+  const allDetections = [...accumulatedDetections, ...(result?.detections || [])];
+
+  const handleContinue = () => {
+    if (result?.detections) {
+      setAccumulatedDetections(prev => [...prev, ...result.detections!]);
+      setResult(null);
+      setCrop(undefined);
+    }
+  };
+
+  const handleClear = () => {
+    setAccumulatedDetections([]);
+    setResult(null);
+    setCrop(undefined);
+  };
+
 
   useEffect(() => {
     const stored = localStorage.getItem(SCAN_IMAGE_KEY);
@@ -101,22 +118,22 @@ export default function Result() {
   );
 
   const handleCopyNotation = () => {
-    if (!result?.detections) return;
-    const text = result.detections.map(d => d.hindi_symbol).join(" ");
+    if (allDetections.length === 0) return;
+    const text = allDetections.map(d => d.hindi_symbol).join(" ");
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleExportXML = () => {
-    if (!result?.detections) return;
-    const xml = exportToMusicXML([result.detections]);
+    if (allDetections.length === 0) return;
+    const xml = exportToMusicXML([allDetections]);
     downloadFile(xml, "swaralipi.musicxml", "application/vnd.recordare.musicxml+xml");
   };
 
   const handleExportText = () => {
-    if (!result?.detections) return;
-    const text = exportToText([result.detections]);
+    if (allDetections.length === 0) return;
+    const text = exportToText([allDetections]);
     downloadFile(text, "swaralipi.txt", "text/plain");
   };
 
@@ -240,38 +257,59 @@ export default function Result() {
                 <ClipboardList className="w-4 h-4 text-black" />
                 <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Transcription</h3>
               </div>
-              {result?.detections && result.detections.length > 0 && (
-                <div className="flex items-center gap-4">
-                  <button onClick={handleExportXML} className="flex items-center gap-1.5 group">
-                    <FileCode2 className="w-4 h-4 text-neutral-400 group-hover:text-amber-500 transition-colors" />
-                    <span className="text-[10px] font-black text-neutral-400 uppercase">XML</span>
+              <div className="flex items-center gap-4">
+                {result?.detections && result.detections.length > 0 && (
+                  <button onClick={handleContinue} className="flex items-center gap-1.5 group bg-black text-white px-3 py-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none active:translate-y-[1px]">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Continue</span>
                   </button>
-                  <button onClick={handleExportText} className="flex items-center gap-1.5 group">
-                    <Code2 className="w-4 h-4 text-neutral-400 group-hover:text-blue-500 transition-colors" />
-                    <span className="text-[10px] font-black text-neutral-400 uppercase">TXT</span>
+                )}
+                {allDetections.length > 0 && (
+                  <button onClick={handleClear} className="flex items-center gap-1.5 group hover:bg-neutral-100 px-3 py-1.5 transition-colors border-2 border-transparent hover:border-black">
+                    <span className="text-[10px] font-black text-black uppercase tracking-widest">Clear</span>
                   </button>
-                  <div className="w-[2px] h-4 bg-neutral-200" />
-                  <button onClick={handleCopyNotation} className="flex items-center gap-2 group">
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${copied ? 'text-emerald-600' : 'text-neutral-400 group-hover:text-black'}`}>
-                      {copied ? 'Copied' : 'Copy'}
-                    </span>
-                    {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-neutral-400 group-hover:text-black" />}
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
-            <div className={`p-8 border-4 border-black bg-white transition-all ${result?.detections?.length ? 'opacity-100' : 'opacity-20'}`}>
+            <div className={`p-8 border-4 border-black bg-white transition-all ${allDetections.length ? 'opacity-100' : 'opacity-20'}`}>
               <div className="font-devanagari text-4xl leading-loose tracking-[0.3em] text-neutral-900 min-h-[60px] flex flex-wrap gap-x-8 gap-y-4">
-                {result?.detections && result.detections.length > 0 ? (
-                  result.detections.map((det, idx) => (
-                    <span key={idx} className="hover:text-emerald-500 transition-colors cursor-default select-none">{det.hindi_symbol}</span>
+                {allDetections.length > 0 ? (
+                  allDetections.map((det, idx) => (
+                    <span key={idx} className={
+                      `transition-colors cursor-default select-none ${idx >= accumulatedDetections.length
+                        ? 'text-black font-black pb-1 border-b-4 border-black animate-pulse'
+                        : 'text-neutral-900 hover:text-black'
+                      }`
+                    }>
+                      {det.hindi_symbol}
+                    </span>
                   ))
                 ) : (
                   <span className="text-xs font-black uppercase tracking-[0.5em] text-neutral-300 italic">No_Data</span>
                 )}
               </div>
             </div>
+
+            {allDetections.length > 0 && (
+              <div className="flex items-center justify-end gap-6 pt-2">
+                <button onClick={handleExportXML} className="flex items-center gap-1.5 group">
+                  <FileCode2 className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                  <span className="text-[10px] font-black text-neutral-400 group-hover:text-black uppercase tracking-widest transition-colors">Export XML</span>
+                </button>
+                <button onClick={handleExportText} className="flex items-center gap-1.5 group">
+                  <Code2 className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                  <span className="text-[10px] font-black text-neutral-400 group-hover:text-black uppercase tracking-widest transition-colors">Export TXT</span>
+                </button>
+                <div className="w-[2px] h-4 bg-neutral-200 mx-1" />
+                <button onClick={handleCopyNotation} className="flex items-center gap-2 group">
+                  <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${copied ? 'text-black' : 'text-neutral-400 group-hover:text-black'}`}>
+                    {copied ? 'Copied' : 'Copy'}
+                  </span>
+                  {copied ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />}
+                </button>
+              </div>
+            )}
           </section>
         </div>
         {/* 
