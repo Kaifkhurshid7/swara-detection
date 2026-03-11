@@ -1,6 +1,6 @@
 """
-YOLOv8 inference for a single cropped image (base64).
-Returns top detection: class_id, confidence.
+YOLOv8 inference for a cropped image.
+Supports both single-swara crops and full row / phrase crops.
 """
 import base64
 import io
@@ -41,6 +41,10 @@ torch.serialization.add_safe_globals(_safe_globals)
 
 MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "best.pt"
 _model = None
+DEFAULT_CONFIDENCE = 0.15
+DEFAULT_IMAGE_SIZE = 1536
+SAME_SYMBOL_IOU_THRESHOLD = 0.85
+SAME_SYMBOL_CENTER_THRESHOLD_PX = 5
 
 def _tight_crop_foreground(image: Image.Image, white_threshold: int = 245, margin: int = 4) -> Image.Image:
     """
@@ -70,7 +74,7 @@ def _get_model():
         _model = YOLO(str(MODEL_PATH))
     return _model
 
-def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
+def run_inference(image_bytes: bytes, conf_threshold: float = DEFAULT_CONFIDENCE):
     """
     Run YOLO on image bytes, return list of detections: 
     [{"class_id": int, "confidence": float, "bbox": [x1, y1, x2, y2]}, ...]
@@ -92,7 +96,7 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
         padded_image.paste(image, (padding, padding))
         image = padded_image
         
-        # 3. Enhance visibility: Balanced Contrast & Original Sharpness
+        # 3. Enhance visibility: Balanced contrast and sharpness for dense rows
         from PIL import ImageEnhance
         image = ImageEnhance.Contrast(image).enhance(1.3)
         image = ImageEnhance.Sharpness(image).enhance(1.5)
@@ -103,8 +107,13 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
     detections = []
     try:
         model = _get_model()
-        # Lowered conf to 0.25 to allow more detections
-        results = model.predict(source=image, conf=0.25, imgsz=1024, verbose=False, augment=False)
+        results = model.predict(
+            source=image,
+            conf=conf_threshold,
+            imgsz=DEFAULT_IMAGE_SIZE,
+            verbose=False,
+            augment=False,
+        )
         
         raw_detections = []
         for r in results:
@@ -120,7 +129,7 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
                     "bbox": xyxy
                 })
         
-        # --- IMPROVED NMS: Class-aware, consistent confidence ---
+        # Suppress only near-identical same-class boxes.
         raw_detections.sort(key=lambda x: x["confidence"], reverse=True)
         final_detections = []
         
@@ -138,8 +147,10 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
         for candidate in raw_detections:
             is_duplicate = False
             for confirmed in final_detections:
-                # Only suppress if same class and overlap
-                if candidate["class_id"] == confirmed["class_id"] and compute_iou(candidate["bbox"], confirmed["bbox"]) > 0.3:
+                if (
+                    candidate["class_id"] == confirmed["class_id"]
+                    and compute_iou(candidate["bbox"], confirmed["bbox"]) > SAME_SYMBOL_IOU_THRESHOLD
+                ):
                     is_duplicate = True
                     break
             if not is_duplicate:
@@ -160,19 +171,20 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.35):
                     conf = min(0.99, calibrated_conf)
                 candidate["confidence"] = conf
                 final_detections.append(candidate)
-        # Filter duplicate swaras at same position (keep highest confidence, but allow adjacent swaras)
+
+        # Filter true duplicates at nearly the exact same position.
+        # Row crops often contain tightly spaced symbols, so proximity alone should not remove them.
         filtered = []
         for det in final_detections:
             duplicate = False
             for f in filtered:
-                # Compute center distance
                 cx1 = (det["bbox"][0] + det["bbox"][2]) / 2
                 cy1 = (det["bbox"][1] + det["bbox"][3]) / 2
                 cx2 = (f["bbox"][0] + f["bbox"][2]) / 2
                 cy2 = (f["bbox"][1] + f["bbox"][3]) / 2
                 dist = ((cx1 - cx2) ** 2 + (cy1 - cy2) ** 2) ** 0.5
-                # Only suppress if centers are very close (< 20px)
-                if dist < 20:
+                iou = compute_iou(det["bbox"], f["bbox"])
+                if dist < SAME_SYMBOL_CENTER_THRESHOLD_PX and iou > 0.7:
                     duplicate = True
                     if det["confidence"] > f["confidence"]:
                         filtered.remove(f)
