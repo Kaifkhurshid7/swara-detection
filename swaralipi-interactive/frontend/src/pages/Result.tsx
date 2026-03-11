@@ -152,7 +152,7 @@ export default function Result() {
       {/* LEFT PANEL: SYSTEM CONSOLE */}
       <aside className="w-full lg:w-[480px] bg-white border-r-4 border-black flex flex-col relative z-20">
 
-        <div className="p-8 border-b-4 border-black flex items-center justify-between bg-neutral-50/50">
+        {/* <div className="p-8 border-b-4 border-black flex items-center justify-between bg-neutral-50/50">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
               <Terminal className="w-6 h-6 text-emerald-400" />
@@ -170,7 +170,7 @@ export default function Result() {
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-        </div>
+        </div> */}
 
         <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
 
@@ -193,7 +193,7 @@ export default function Result() {
               <div className={`flex items-start gap-5 p-6 border-2 transition-all duration-300 ${crop && !result ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
                 <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${crop && !result ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
                 <div className="flex-1">
-                  <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Neural Synthesis</h4>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Swaras Synthesis</h4>
                   <p className="text-[10px] leading-relaxed font-bold text-neutral-500">Executing sequential swara classification.</p>
                 </div>
                 {loading ? <Loader2 className="w-5 h-5 text-emerald-500 mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" /> : null}
