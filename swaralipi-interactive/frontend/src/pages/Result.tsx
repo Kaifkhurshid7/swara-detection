@@ -234,7 +234,7 @@ export default function Result() {
                   ) : (
                     <div className="border-4 border-dashed border-neutral-200 p-10 text-center">
                       <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest leading-loose">
-                        Null Stream <br />
+                        Null <br />
                         <span className="text-red-500">[ Recalibrate ROI ]</span>
                       </p>
                     </div>
