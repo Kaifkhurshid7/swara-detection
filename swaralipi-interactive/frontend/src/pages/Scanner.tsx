@@ -5,13 +5,9 @@ import {
   Upload,
   Loader2,
   ArrowLeft,
-  Cpu,
   AlertCircle,
   Zap,
-  Activity,
-  ShieldCheck,
-  Target,
-  Hash
+  Target
 } from "lucide-react";
 import { isMobile } from "../utils/device";
 

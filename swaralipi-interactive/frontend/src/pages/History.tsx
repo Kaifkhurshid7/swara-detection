@@ -12,8 +12,6 @@ import {
   Hash,
   BarChart3,
   ArrowLeft,
-  Terminal,
-  Cpu,
   History as HistoryIcon
 } from "lucide-react";
 

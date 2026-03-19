@@ -11,8 +11,6 @@ import { exportToMusicXML, exportToText, downloadFile } from "../utils/exportNot
 import NeuralTooltip from "../components/NeuralTooltip";
 import {
   Loader2,
-  ArrowLeft,
-  Terminal,
   Database,
   Maximize2,
   CheckCircle2,
@@ -22,8 +20,7 @@ import {
   Check,
   ClipboardList,
   FileCode2,
-  Code2,
-  Cpu
+  Code2
 } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";

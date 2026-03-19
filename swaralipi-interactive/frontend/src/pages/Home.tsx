@@ -4,11 +4,7 @@ import {
   ArrowRight,
   Database,
   Microscope,
-  Music2,
-  ExternalLink,
-  Code2,
-  Hash,
-  Activity
+  Code2
 } from "lucide-react";
 
 export default function Home() {
