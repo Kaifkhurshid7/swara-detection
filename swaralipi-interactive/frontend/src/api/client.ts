@@ -1,9 +1,10 @@
 import axios from "axios";
 
-// Directly point to the FastAPI backend running on port 8000
-// In dev, set VITE_API_URL in .env.development if you need to override it.
-const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const PROD_BACKEND_URL = "https://swara-detection.onrender.com";
 const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? PROD_BACKEND_URL : DEFAULT_BACKEND_URL);
 
 const client = axios.create({
   baseURL: API_BASE,
