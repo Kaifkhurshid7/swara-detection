@@ -145,27 +145,42 @@ def _segment_wide_image(image_pil):
 
 def _is_pa_physically(image_pil):
     """
-    Physical check for Pa (प) vs Ma (म).
-    Checks leftmost density to identify the 'open' structure of Pa.
-    Refined: Narrower ROI and stricter threshold to prevent Ma -> Pa misfires.
+    Advanced physical check for Pa (प) vs Ma (म).
+    Uses 'Hole Detection' (contours) to find the characteristic loop of Ma.
     """
+    # Use higher contrast for reliable contouring
     gray = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2GRAY)
-    # Binary with slightly softer threshold to catch subtle strokes
-    _, binary = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY_INV)
+    _, binary = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY_INV)
     
     h, w = binary.shape
-    # Slice to ignore top header line (airoline) and bottom (ignore noise)
-    roi = binary[int(h*0.25):int(h*0.8), :]
-    if roi.size == 0: return False
+    # Focus on the left 60% of the symbol where the loop resides
+    left_half = binary[:, :int(w*0.6)]
     
-    rh, rw = roi.shape
-    # Scan the very edge: leftmost 20% (narrower for Phase 2)
-    left_side = roi[:, :int(rw*0.20)]
-    # Density check: Ma has a vertical loop/stroke on left, Pa is open
-    density = np.sum(left_side > 0) / left_side.size
+    # 1. HOLE DETECTION: Ma (म) has a closed loop/circle on the left
+    # findContours with RETR_TREE allows us to find internal 'holes'
+    contours, hierarchy = cv2.findContours(left_half, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
-    # Pa is only forced if the extreme left is almost completely empty
-    return density < 0.06
+    has_hole = False
+    if hierarchy is not None:
+        # Hierarchy: [Next, Previous, First_Child, Parent]
+        # An internal hole means a contour has a parent
+        for i, h_info in enumerate(hierarchy[0]):
+            parent_idx = h_info[3]
+            if parent_idx != -1:
+                # Potential hole found, check its size to avoid noise
+                area = cv2.contourArea(contours[i])
+                if 20 < area < (left_half.size * 0.2): # Realistic loop size
+                    has_hole = True
+                    break
+                    
+    if has_hole:
+        return False # Definitely Ma (not Pa)
+        
+    # 2. DENSITY FALLBACK: If no hole, check if the left side is sparse (Pa)
+    edge_roi = left_half[:, :int(left_half.shape[1]*0.3)]
+    density = np.sum(edge_roi > 0) / edge_roi.size
+    # Pa is very open on the left edge
+    return density < 0.07
 
 def run_inference(image_bytes: bytes, conf_threshold: float = 0.15):
     """
