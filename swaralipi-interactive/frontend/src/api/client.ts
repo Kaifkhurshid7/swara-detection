@@ -5,11 +5,12 @@ const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
 const API_BASE =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? PROD_BACKEND_URL : DEFAULT_BACKEND_URL);
+const REQUEST_TIMEOUT_MS = 120000;
 
 const client = axios.create({
   baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
-  timeout: 30000,
+  timeout: REQUEST_TIMEOUT_MS,
 });
 
 export const getApiBase = () => API_BASE;
@@ -34,12 +35,15 @@ function extractErrorDetail(data: unknown): string | null {
 
 export function getUserFacingApiError(error: unknown, action: "analyze" | "history"): string {
   if (axios.isAxiosError(error)) {
+    if (error.code === "ECONNABORTED") {
+      return "Backend took too long to respond. On Render free tier, the server may be waking up. Please wait about a minute and try again.";
+    }
     if (error.response) {
       const detail = extractErrorDetail(error.response.data);
       const prefix = action === "analyze" ? "Analyze failed" : "History fetch failed";
       return detail ? `${prefix}: ${detail}` : `${prefix}: HTTP ${error.response.status}`;
     }
-    return `Backend not reachable. Start it (e.g. run-backend.bat), then ensure it runs at ${getBackendHintUrl()}.`;
+    return `Backend not reachable right now. If this is the live app, the Render server may still be waking up. Please retry in about a minute. Backend URL: ${getBackendHintUrl()}.`;
   }
 
   if (error instanceof Error && error.message) {
@@ -91,7 +95,24 @@ export interface ImportResponse {
   }[];
 }
 
+let warmupPromise: Promise<void> | null = null;
+
+async function warmBackend() {
+  if (!import.meta.env.PROD) return;
+  if (!warmupPromise) {
+    warmupPromise = client
+      .get("/", { timeout: REQUEST_TIMEOUT_MS })
+      .then(() => undefined)
+      .catch(() => undefined)
+      .finally(() => {
+        warmupPromise = null;
+      });
+  }
+  await warmupPromise;
+}
+
 export async function analyzeCrop(imageBlob: Blob): Promise<AnalyzeResponse> {
+  await warmBackend();
   const formData = new FormData();
   formData.append("file", imageBlob, "image.png");
 
@@ -104,6 +125,7 @@ export async function analyzeCrop(imageBlob: Blob): Promise<AnalyzeResponse> {
 }
 
 export async function getHistory(): Promise<HistoryResponse> {
+  await warmBackend();
   const { data } = await client.get<HistoryResponse>("/history");
   return data;
 }
