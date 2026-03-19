@@ -39,7 +39,7 @@ except Exception:
 
 torch.serialization.add_safe_globals(_safe_globals)
 
-MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "best.pt"
+MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "brain.pt"
 _model = None
 DEFAULT_CONFIDENCE = 0.15
 DEFAULT_IMAGE_SIZE = 1536
@@ -121,7 +121,7 @@ def _segment_wide_image(image_pil):
         
     joined_segments = []
     curr_s, curr_e = segments[0]
-    join_gap = 12 # characters shouldn't be separated by more than this
+    join_gap = 20 # Increased for stability
     
     for i in range(1, len(segments)):
         next_s, next_e = segments[i]
@@ -135,7 +135,8 @@ def _segment_wide_image(image_pil):
     # Add margins to finalized segments
     final_segments = []
     for s, e in joined_segments:
-        margin = 15
+        if (e - s) < 15: continue # Skip extremely thin segments (likely noise)
+        margin = 20
         s_final = max(0, s - margin)
         e_final = min(image_pil.width, e + margin)
         final_segments.append((s_final, e_final))
