@@ -79,69 +79,117 @@ import numpy as np
 
 def _segment_wide_image(image_pil):
     """
-    Split a wide row image into individual symbols using vertical projection.
+    Split a wide crop into symbol-sized boxes using connected components.
+    This is more stable than pure vertical projection for nearby swaras,
+    upper/lower marks, and punctuation-like dashes.
     """
-    # Convert to grayscale for analysis
     gray = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2GRAY)
-    
-    # Invert threshold: symbols become 255, background 0
     _, binary = cv2.threshold(gray, 245, 255, cv2.THRESH_BINARY_INV)
-    
-    # Noise filtering: remove very small columns
-    kernel = np.ones((3, 3), np.uint8)
+
+    kernel = np.ones((2, 2), np.uint8)
     binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
-    
-    # Vertical projection: sum of black pixels in each column
-    projection = np.sum(binary, axis=0)
-    
-    # Gaps are where projection is near zero
-    thresh = 5 # Ignore minor noise
-    is_char = projection > thresh
-    
-    segments = []
-    start = None
-    min_width = 10
-    
-    for i, active in enumerate(is_char):
-        if active and start is None:
-            start = i
-        elif not active and start is not None:
-            width = i - start
-            if width >= min_width:
-                segments.append((start, i))
-            start = None
-            
-    if start is not None:
-        if image_pil.width - start >= min_width:
-            segments.append((start, image_pil.width))
-            
-    # JOINING LOGIC: Join segments that are very close to each other
-    if not segments:
+
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    components = []
+    img_h, img_w = binary.shape
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        area = cv2.contourArea(contour)
+        if area < 20 or w < 4 or h < 8:
+            continue
+        components.append((x, y, x + w, y + h))
+
+    if not components:
         return []
-        
-    joined_segments = []
-    curr_s, curr_e = segments[0]
-    join_gap = 20 # Increased for stability
-    
-    for i in range(1, len(segments)):
-        next_s, next_e = segments[i]
-        if next_s - curr_e < join_gap:
-            curr_e = next_e
+
+    components.sort(key=lambda box: box[0])
+
+    merged = []
+    merge_gap = 8
+    cur_left, cur_top, cur_right, cur_bottom = components[0]
+    for left, top, right, bottom in components[1:]:
+        if left <= cur_right + merge_gap:
+            cur_left = min(cur_left, left)
+            cur_top = min(cur_top, top)
+            cur_right = max(cur_right, right)
+            cur_bottom = max(cur_bottom, bottom)
         else:
-            joined_segments.append((curr_s, curr_e))
-            curr_s, curr_e = next_s, next_e
-    joined_segments.append((curr_s, curr_e))
-    
-    # Add margins to finalized segments
+            merged.append((cur_left, cur_top, cur_right, cur_bottom))
+            cur_left, cur_top, cur_right, cur_bottom = left, top, right, bottom
+    merged.append((cur_left, cur_top, cur_right, cur_bottom))
+
     final_segments = []
-    for s, e in joined_segments:
-        if (e - s) < 15: continue # Skip extremely thin segments (likely noise)
-        margin = 20
-        s_final = max(0, s - margin)
-        e_final = min(image_pil.width, e + margin)
-        final_segments.append((s_final, e_final))
-        
+    for left, top, right, bottom in merged:
+        width = right - left
+        height = bottom - top
+        if width < 10 or height < 12:
+            continue
+
+        # Ignore long flat dash-like marks that are not swaras.
+        if height < img_h * 0.18 and width > height * 1.8:
+            continue
+
+        margin_x = 10
+        margin_y = 8
+        left = max(0, left - margin_x)
+        top = max(0, top - margin_y)
+        right = min(img_w, right + margin_x)
+        bottom = min(img_h, bottom + margin_y)
+        final_segments.append((left, top, right, bottom))
+
     return final_segments
+
+
+def _crop_bbox_with_margin(image: Image.Image, bbox, margin: int = 4) -> Image.Image:
+    left, top, right, bottom = bbox
+    left = max(0, int(left) - margin)
+    top = max(0, int(top) - margin)
+    right = min(image.width, int(right) + margin)
+    bottom = min(image.height, int(bottom) + margin)
+    if right <= left or bottom <= top:
+        return image
+    return image.crop((left, top, right, bottom))
+
+
+def _filter_duplicate_detections(detections):
+    if not detections:
+        return []
+
+    kept = []
+    for det in sorted(detections, key=lambda d: d["confidence"], reverse=True):
+        left, top, right, bottom = det["bbox"]
+        center_x = (left + right) / 2
+        center_y = (top + bottom) / 2
+        duplicate = False
+        for existing in kept:
+            ex_left, ex_top, ex_right, ex_bottom = existing["bbox"]
+            ex_center_x = (ex_left + ex_right) / 2
+            ex_center_y = (ex_top + ex_bottom) / 2
+
+            inter_left = max(left, ex_left)
+            inter_top = max(top, ex_top)
+            inter_right = min(right, ex_right)
+            inter_bottom = min(bottom, ex_bottom)
+            inter_w = max(0, inter_right - inter_left)
+            inter_h = max(0, inter_bottom - inter_top)
+            inter_area = inter_w * inter_h
+            area = max(1, (right - left) * (bottom - top))
+            ex_area = max(1, (ex_right - ex_left) * (ex_bottom - ex_top))
+            iou = inter_area / float(area + ex_area - inter_area)
+
+            if iou > SAME_SYMBOL_IOU_THRESHOLD:
+                duplicate = True
+                break
+            if abs(center_x - ex_center_x) <= SAME_SYMBOL_CENTER_THRESHOLD_PX and abs(center_y - ex_center_y) <= SAME_SYMBOL_CENTER_THRESHOLD_PX:
+                duplicate = True
+                break
+
+        if not duplicate:
+            kept.append(det)
+
+    kept.sort(key=lambda d: d["bbox"][0])
+    return kept
 
 def _is_pa_physically(image_pil):
     """
@@ -209,9 +257,9 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.15):
 
     if is_wide_row:
         # PROCESS EACH SEGMENT INDEPENDENTLY
-        for s_left, s_right in segments:
+        for s_left, s_top, s_right, s_bottom in segments:
             # Crop segment
-            segment_img = original_image.crop((s_left, 0, s_right, original_image.height))
+            segment_img = original_image.crop((s_left, s_top, s_right, s_bottom))
             
             # Pad and Enhance segment for Ma/Pa differentiation
             padding = 24
@@ -236,7 +284,12 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.15):
                         # --- CRITICAL: Ma/Pa Differentiation Fix ---
                         # Class 6: Ma, Class 11: Tivra Ma, Class 8: Pa
                         if cls_id in [6, 8, 11]:
-                            if _is_pa_physically(segment_img):
+                            symbol_crop = _crop_bbox_with_margin(
+                                pad_img,
+                                xyxy,
+                                margin=2
+                            )
+                            if _is_pa_physically(symbol_crop):
                                 cls_id = 8 # Force to Pa if physically open on left
                             elif cls_id == 8: # If thought Pa but physically has loop/stroke
                                 cls_id = 6 # Default back to Shuddha Ma
@@ -246,9 +299,9 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.15):
                             "confidence": conf,
                             "bbox": [
                                 xyxy[0] - padding + s_left,
-                                xyxy[1] - padding,
+                                xyxy[1] - padding + s_top,
                                 xyxy[2] - padding + s_left,
-                                xyxy[3] - padding
+                                xyxy[3] - padding + s_top
                             ]
                         })
             # Keep only the single BEST result for this segment to eliminate "random guesses"
@@ -273,9 +326,10 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.15):
                     cls_id = int(box.cls[0])
                     xyxy = box.xyxy[0].tolist()
                     
-                    # Apply Ma/Pa check to single crops too
+                    # Apply Ma/Pa check to the detected symbol crop, not the whole crop.
                     if cls_id in [6, 8, 11]:
-                        if _is_pa_physically(original_image):
+                        symbol_crop = _crop_bbox_with_margin(pad_img, xyxy, margin=2)
+                        if _is_pa_physically(symbol_crop):
                             cls_id = 8
                         elif cls_id == 8:
                             cls_id = 6
@@ -301,6 +355,8 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.15):
             det["confidence"] = min(0.99, calibrated)
         else:
             det["confidence"] = 0.85 + (c * 0.05 / 0.2)
+
+    all_detections = _filter_duplicate_detections(all_detections)
 
     # Detect vertical bars (vibhag)
     results_final = []
