@@ -8,7 +8,6 @@ import {
   type AnalyzeResponse
 } from "../api/client";
 import { exportToMusicXML, exportToText, downloadFile } from "../utils/exportNotation";
-import NeuralTooltip from "../components/NeuralTooltip";
 import {
   Loader2,
   Database,
@@ -144,10 +143,10 @@ export default function Result() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row overflow-hidden font-sans text-neutral-900 selection:bg-black selection:text-white">
+    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row items-start overflow-hidden font-sans text-neutral-900 selection:bg-black selection:text-white">
 
       {/* LEFT PANEL: SYSTEM CONSOLE */}
-      <aside className="w-full lg:w-[480px] bg-white border-r-4 border-black flex flex-col relative z-20">
+      <aside className="w-full lg:w-[380px] xl:w-[400px] bg-white border-r-4 border-black flex flex-col self-stretch relative z-20">
 
         {/* <div className="p-8 border-b-4 border-black flex items-center justify-between bg-neutral-50/50">
           <div className="flex items-center gap-4">
@@ -169,16 +168,16 @@ export default function Result() {
           </button>
         </div> */}
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto p-5 lg:p-6 space-y-6 scrollbar-hide">
 
-          <section className="space-y-6">
+          <section className="space-y-4">
             <div className="flex items-center gap-3">
               <Layers className="w-4 h-4 text-black" />
               <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Sequence_Protocol</h3>
             </div>
 
-            <div className="relative space-y-4">
-              <div className={`flex items-start gap-5 p-6 border-2 transition-all duration-300 ${!crop ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
+            <div className="relative space-y-3">
+              <div className={`flex items-start gap-4 p-4 border-2 transition-all duration-300 ${!crop ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
                 <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${!crop ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
                 <div className="flex-1">
                   <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Spatial Selection</h4>
@@ -187,7 +186,7 @@ export default function Result() {
                 {crop && <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" />}
               </div>
 
-              <div className={`flex items-start gap-5 p-6 border-2 transition-all duration-300 ${crop && !result ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
+              <div className={`flex items-start gap-4 p-4 border-2 transition-all duration-300 ${crop && !result ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
                 <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${crop && !result ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
                 <div className="flex-1">
                   <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Swaras Synthesis</h4>
@@ -199,37 +198,58 @@ export default function Result() {
           </section>
 
           <section className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <Database className="w-4 h-4 text-black" />
               <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Detections</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-4 border-4 border-dashed border-neutral-100 bg-neutral-50/50">
+                <div className="flex flex-col items-center justify-center py-12 gap-4 border-4 border-dashed border-neutral-100 bg-neutral-50/50">
                   <Loader2 className="w-12 h-12 text-black animate-spin" />
                   <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.5em]">De-Convolution In Progress...</span>
                 </div>
               ) : result ? (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {result.detections && result.detections.length > 0 ? (
-                    <div className="flex flex-wrap gap-4 items-center justify-center p-6 border-2 border-black bg-neutral-50">
-                      {result.detections.map((det, idx) => (
-                        <div key={idx} className="flex items-center gap-4">
-                          <NeuralTooltip
-                            hindiSymbol={det.hindi_symbol}
-                            englishName={det.class_name || ""}
-                            confidence={det.confidence}
-                            inline
-                          />
-                          {idx < (result.detections?.length || 0) - 1 && (
-                            <div className="text-black font-black text-xs">→</div>
-                          )}
+                    <div className="max-h-[38vh] overflow-y-auto rounded-2xl border-2 border-black bg-white">
+                      <div className="divide-y divide-neutral-200">
+                      {result.detections.map((det, idx) => {
+                        const pct = Math.round(det.confidence * 100);
+                        return (
+                        <div key={idx} className="grid grid-cols-[56px_minmax(0,1fr)_56px] items-center gap-3 px-4 py-3">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-3xl font-black text-neutral-900" style={{ fontFamily: "serif" }}>
+                            {det.hindi_symbol}
+                          </div>
+
+                          <div className="min-w-0">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-neutral-400">Classification</p>
+                                <p className="truncate text-[15px] font-bold text-neutral-900">{det.class_name || "Unknown"}</p>
+                              </div>
+                              <span className="shrink-0 rounded-full border border-neutral-300 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-neutral-600">
+                                {pct}%
+                              </span>
+                            </div>
+                            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                              <div
+                                className="h-full rounded-full bg-black transition-all duration-700"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="text-right text-[10px] font-black uppercase tracking-[0.25em] text-neutral-300">
+                            {String(idx + 1).padStart(2, "0")}
+                          </div>
                         </div>
-                      ))}
+                        );
+                      })}
+                      </div>
                     </div>
                   ) : (
-                    <div className="border-4 border-dashed border-neutral-200 p-10 text-center">
+                    <div className="border-4 border-dashed border-neutral-200 p-8 text-center">
                       <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest leading-loose">
                         Null <br />
                         <span className="text-red-500">[ Recalibrate ROI ]</span>
@@ -238,7 +258,7 @@ export default function Result() {
                   )}
                 </div>
               ) : (
-                <div className="border-4 border-dashed border-neutral-100 py-16 px-8 text-center">
+                <div className="border-4 border-dashed border-neutral-100 py-12 px-6 text-center">
                   <p className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.4em] leading-loose italic">
                     Waiting for Input... <br />
                     <span className="normal-case text-neutral-400 font-bold">Initialize workbench coordinates</span>
@@ -248,7 +268,7 @@ export default function Result() {
             </div>
           </section>
 
-          <section className="space-y-6 pt-4">
+          <section className="space-y-4 pt-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <ClipboardList className="w-4 h-4 text-black" />
@@ -269,8 +289,8 @@ export default function Result() {
               </div>
             </div>
 
-            <div className={`p-8 border-4 border-black bg-white transition-all ${allDetections.length ? 'opacity-100' : 'opacity-20'}`}>
-              <div className="font-devanagari text-4xl leading-loose tracking-[0.3em] text-neutral-900 min-h-[60px] flex flex-wrap gap-x-8 gap-y-4">
+            <div className={`p-5 border-4 border-black bg-white transition-all ${allDetections.length ? 'opacity-100' : 'opacity-20'}`}>
+              <div className="font-devanagari text-3xl leading-relaxed tracking-[0.2em] text-neutral-900 min-h-[48px] flex flex-wrap gap-x-5 gap-y-2">
                 {allDetections.length > 0 ? (
                   allDetections.map((det, idx) => (
                     <span key={idx} className={
@@ -320,11 +340,11 @@ export default function Result() {
       </aside>
 
       {/* RIGHT PANEL: VISUAL WORKBENCH */}
-      <main className="flex-1 p-8 lg:p-12 flex flex-col relative bg-[#F8F9FA]">
+      <main className="flex-1 self-stretch p-5 lg:p-8 flex flex-col relative bg-[#F8F9FA]">
         <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} />
 
-        <div className="relative z-10 flex items-center justify-between mb-8">
+        <div className="relative z-10 flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 bg-black" />
             <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-black">Precision_Workspace</h3>
@@ -340,18 +360,18 @@ export default function Result() {
           </div>
         </div>
 
-        <div className="relative z-10 flex-1 bg-white border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,0.05)] p-8 flex items-center justify-center overflow-auto">
+        <div className="relative z-10 flex-1 bg-white border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,0.05)] p-4 lg:p-6 flex items-start justify-start overflow-auto">
           <ReactCrop
             crop={crop}
             onChange={(_, percentCrop) => setCrop(percentCrop)}
             onComplete={onComplete}
-            className="max-w-full no-greyscale-crop"
+            className="max-w-full no-greyscale-crop self-start"
           >
             <img
               ref={imgRef}
               src={source}
               alt="Manuscript"
-              className="max-h-[65vh] w-auto transition-all duration-500 manuscript-target"
+              className="max-h-none min-h-0 h-auto w-auto max-w-full transition-all duration-500 manuscript-target align-top"
               style={{ maxWidth: "100%" }}
               crossOrigin="anonymous"
             />
