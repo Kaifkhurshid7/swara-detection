@@ -7,7 +7,7 @@ import {
   getUserFacingApiError,
   type AnalyzeResponse
 } from "../api/client";
-import { exportToMusicXML, exportToText, downloadFile } from "../utils/exportNotation";
+import { exportToMusicXML, exportToPdf, exportToText, downloadFile } from "../utils/exportNotation";
 import {
   Loader2,
   Database,
@@ -19,7 +19,8 @@ import {
   Check,
   ClipboardList,
   FileCode2,
-  Code2
+  Code2,
+  FileText
 } from "lucide-react";
 
 const SCAN_IMAGE_KEY = "swaralipi_scan_image";
@@ -131,6 +132,11 @@ export default function Result() {
     if (allDetections.length === 0) return;
     const text = exportToText([allDetections]);
     downloadFile(text, "swaralipi.txt", "text/plain");
+  };
+
+  const handleExportPdf = () => {
+    if (allDetections.length === 0) return;
+    exportToPdf([allDetections]);
   };
 
   if (!source) {
@@ -310,6 +316,10 @@ export default function Result() {
 
             {allDetections.length > 0 && (
               <div className="flex items-center justify-end gap-6 pt-2">
+                <button onClick={handleExportPdf} className="flex items-center gap-1.5 group">
+                  <FileText className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
+                  <span className="text-[10px] font-black text-neutral-400 group-hover:text-black uppercase tracking-widest transition-colors">Export PDF</span>
+                </button>
                 <button onClick={handleExportXML} className="flex items-center gap-1.5 group">
                   <FileCode2 className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
                   <span className="text-[10px] font-black text-neutral-400 group-hover:text-black uppercase tracking-widest transition-colors">Export XML</span>
