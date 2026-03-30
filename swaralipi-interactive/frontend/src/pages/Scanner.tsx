@@ -84,7 +84,7 @@ export default function Scanner() {
         <div className="relative z-10 flex items-center justify-between mb-8">
           <button
             onClick={() => navigate("/")}
-            className="group flex items-center gap-4 px-6 py-3 border-2 border-black bg-white hover:bg-black hover:text-white transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
+            className="group flex items-center gap-4 px-6 py-3 bg-white hover:bg-black hover:text-white transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-[10px] font-black uppercase tracking-[0.3em]">Exit_Terminal</span>
@@ -191,25 +191,42 @@ export default function Scanner() {
             <div className="w-12 h-12 bg-black flex items-center justify-center text-white">
               <Target className="w-6 h-6" />
             </div>
-            <h2 className="text-[11px] font-black uppercase tracking-[0.5em] text-neutral-400 font-mono">Protocol_01-A</h2>
+            <h2 className="text-[11px] font-black uppercase tracking-[0.5em] text-neutral-400 font-mono">How to Use the Scanner</h2>
           </div>
 
-          <h2 className="text-4xl font-black text-neutral-900 mb-12 leading-tight tracking-tighter uppercase">Inference <br /> Sequence</h2>
+          <h2 className="text-4xl font-black text-neutral-900 mb-12 leading-tight tracking-tighter uppercase">How the Scanner Works</h2>
 
           <div className="space-y-12">
-            {[
-              { id: '01', title: 'Grid Alignment', desc: 'Position the manuscript within the white viewfinder boundary. Center the swara for feature extraction.' },
-              { id: '02', title: 'ROI Definition', desc: 'The engine isolates pixel data within the Region of Interest for prioritized neural processing.' },
-              { id: '03', title: 'Inference Handshake', desc: 'Prioritized stream to YOLOv8 for classification of Hindustani pitch-class ontology.' }
-            ].map((step) => (
-              <div key={step.id} className="relative pl-12 border-l-4 border-black group">
-                <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-black rounded-full" />
-                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-2">{step.id} // {step.title}</h4>
-                <p className="text-neutral-500 text-xs leading-relaxed font-semibold">
-                  {step.desc}
-                </p>
-              </div>
-            ))}
+            {/* Step 1: Grid Alignment */}
+            <div className="relative pl-12 border-l-4 border-black group">
+              <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-black rounded-full" />
+              <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-2">01 // Grid Alignment</h4>
+              <p className="text-neutral-500 text-xs leading-relaxed font-semibold">
+                Place the manuscript within the white viewfinder boundary on the left.<br />
+                Center the swara you want to scan for best feature extraction.<br />
+                You can use your camera or upload an image file.
+              </p>
+            </div>
+
+            {/* Step 2: ROI Definition */}
+            <div className="relative pl-12 border-l-4 border-black group">
+              <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-black rounded-full" />
+              <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-2">02 // ROI Definition</h4>
+              <p className="text-neutral-500 text-xs leading-relaxed font-semibold">
+                The engine will automatically isolate pixel data within the Region of Interest (ROI) for focused neural processing.<br />
+                Make sure the swara is clearly visible and not obstructed.
+              </p>
+            </div>
+
+            {/* Step 3: Inference Handshake */}
+            <div className="relative pl-12 border-l-4 border-black group">
+              <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-black rounded-full" />
+              <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-2">03 // Inference Handshake</h4>
+              <p className="text-neutral-500 text-xs leading-relaxed font-semibold">
+                The prioritized image stream is sent to the YOLOv8 neural engine for classification.<br />
+                The system will recognize and display the Hindustani pitch-class (swara) detected in the manuscript.
+              </p>
+            </div>
           </div>
         </div>
 

@@ -51,35 +51,6 @@ export default function History() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] relative flex flex-col overflow-hidden font-sans text-neutral-900 selection:bg-black selection:text-white">
-
-      {/* HEADER: MATCHING THE RESULT PAGE SYSTEM BAR */}
-      <nav className="w-full bg-white border-b-4 border-black flex items-center justify-between p-8 relative z-20">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(59,130,246,1)]">
-            <HistoryIcon className="w-6 h-6 text-blue-400" />
-          </div>
-          <div>
-            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-900 leading-none mb-1">Archival_Node</h2>
-            <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
-              <Database className="w-3 h-3" /> System_Logs_Active
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="hidden md:block text-right pr-6 border-r-2 border-neutral-100">
-            <span className="block text-[9px] font-black text-neutral-400 uppercase tracking-widest">Entry_Count</span>
-            <span className="text-xl font-mono font-black text-neutral-900">{scans.length.toString().padStart(3, '0')}</span>
-          </div>
-          <button
-            onClick={() => navigate("/scan")}
-            className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        </div>
-      </nav>
-
       <main className="flex-1 relative p-6 lg:p-12 overflow-y-auto scrollbar-hide">
         {/* Engineering Grid Overlay */}
         <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"

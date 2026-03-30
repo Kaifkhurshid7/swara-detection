@@ -187,7 +187,10 @@ export default function Result() {
                 <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${!crop ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
                 <div className="flex-1">
                   <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Spatial Selection</h4>
-                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">Isolate ROI for neural weight mapping.</p>
+                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">
+                    Select and isolate the Region of Interest (ROI) on your manuscript.<br />
+                    This helps the neural engine focus on the relevant musical notation for accurate analysis.
+                  </p>
                 </div>
                 {crop && <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" />}
               </div>
@@ -196,7 +199,10 @@ export default function Result() {
                 <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${crop && !result ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
                 <div className="flex-1">
                   <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Swaras Synthesis</h4>
-                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">Executing sequential swara classification.</p>
+                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">
+                    The system will now analyze the selected region and classify each swara (note) in sequence.<br />
+                    Results will be displayed below as the neural engine completes its recognition.
+                  </p>
                 </div>
                 {loading ? <Loader2 className="w-5 h-5 text-emerald-500 mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" /> : null}
               </div>
