@@ -127,9 +127,8 @@ export default function Scanner() {
                   {/* No scanning line for natural camera look */}
 
                   {status === "processing" && (
-                    <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center z-20">
-                      <Loader2 className="w-12 h-12 text-white animate-spin mb-4" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white">Ingesting Data...</span>
+                    <div className="absolute inset-0 flex items-center justify-center z-20 bg-transparent">
+                      <Loader2 className="w-14 h-14 text-black animate-spin" />
                     </div>
                   )}
                 </div>
@@ -142,7 +141,6 @@ export default function Scanner() {
                   disabled={status === "processing"}
                   className="mt-6 w-full h-14 bg-white text-black border border-neutral-300 rounded-lg flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-base shadow hover:bg-neutral-100 active:scale-[0.98] disabled:opacity-50 transition-all"
                 >
-                
                   Capture
                 </button>
               </div>
