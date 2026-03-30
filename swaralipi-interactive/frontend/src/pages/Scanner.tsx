@@ -6,7 +6,6 @@ import {
   Loader2,
   ArrowLeft,
   AlertCircle,
-  Zap,
   Target
 } from "lucide-react";
 import { isMobile } from "../utils/device";

@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { getHistory, getUserFacingApiError, type HistoryScan } from "../api/client";
 import {
   Loader2,
   Music2,
   AlertCircle,
   Clock,
-  Database,
   FileSearch,
   ChevronRight,
   Hash,
-  BarChart3,
-  ArrowLeft,
-  History as HistoryIcon
+  BarChart3
 } from "lucide-react";
 
 function formatTime(iso: string) {
@@ -28,7 +24,6 @@ function formatTime(iso: string) {
 }
 
 export default function History() {
-  const navigate = useNavigate();
   const [scans, setScans] = useState<HistoryScan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
