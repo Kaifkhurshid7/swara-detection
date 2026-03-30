@@ -58,21 +58,21 @@ export default function Result() {
   const [crop, setCrop] = useState<Crop | undefined>();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
-  const [accumulatedDetections, setAccumulatedDetections] = useState<NonNullable<AnalyzeResponse["detections"]>>([]);
+  const [storedDetections, setStoredDetections] = useState<NonNullable<AnalyzeResponse["detections"]>>([]);
   const [copied, setCopied] = useState(false);
 
-  const allDetections = [...accumulatedDetections, ...(result?.detections || [])];
+  const latestDetections = result?.detections || storedDetections;
 
-  const handleContinue = () => {
+  const handleStoreLatest = () => {
     if (result?.detections) {
-      setAccumulatedDetections(prev => [...prev, ...result.detections!]);
+      setStoredDetections(result.detections);
       setResult(null);
       setCrop(undefined);
     }
   };
 
   const handleClear = () => {
-    setAccumulatedDetections([]);
+    setStoredDetections([]);
     setResult(null);
     setCrop(undefined);
   };
@@ -115,28 +115,28 @@ export default function Result() {
   );
 
   const handleCopyNotation = () => {
-    if (allDetections.length === 0) return;
-    const text = allDetections.map(d => d.hindi_symbol).join(" ");
+    if (latestDetections.length === 0) return;
+    const text = latestDetections.map(d => d.hindi_symbol).join(" ");
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleExportXML = () => {
-    if (allDetections.length === 0) return;
-    const xml = exportToMusicXML([allDetections]);
+    if (latestDetections.length === 0) return;
+    const xml = exportToMusicXML([latestDetections]);
     downloadFile(xml, "swaralipi.musicxml", "application/vnd.recordare.musicxml+xml");
   };
 
   const handleExportText = () => {
-    if (allDetections.length === 0) return;
-    const text = exportToText([allDetections]);
+    if (latestDetections.length === 0) return;
+    const text = exportToText([latestDetections]);
     downloadFile(text, "swaralipi.txt", "text/plain");
   };
 
   const handleExportPdf = () => {
-    if (allDetections.length === 0) return;
-    exportToPdf([allDetections]);
+    if (latestDetections.length === 0) return;
+    exportToPdf([latestDetections]);
   };
 
   if (!source) {
@@ -282,12 +282,12 @@ export default function Result() {
               </div>
               <div className="flex items-center gap-4">
                 {result?.detections && result.detections.length > 0 && (
-                  <button onClick={handleContinue} className="flex items-center gap-1.5 group bg-black text-white px-3 py-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none active:translate-y-[1px]">
+                  <button onClick={handleStoreLatest} className="flex items-center gap-1.5 group bg-black text-white px-3 py-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none active:translate-y-[1px]">
                     <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Continue</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Store Latest</span>
                   </button>
                 )}
-                {allDetections.length > 0 && (
+                {latestDetections.length > 0 && (
                   <button onClick={handleClear} className="flex items-center gap-1.5 group hover:bg-neutral-100 px-3 py-1.5 transition-colors border-2 border-transparent hover:border-black">
                     <span className="text-[10px] font-black text-black uppercase tracking-widest">Clear</span>
                   </button>
@@ -295,15 +295,12 @@ export default function Result() {
               </div>
             </div>
 
-            <div className={`p-5 border-4 border-black bg-white transition-all ${allDetections.length ? 'opacity-100' : 'opacity-20'}`}>
+            <div className={`p-5 border-4 border-black bg-white transition-all ${latestDetections.length ? 'opacity-100' : 'opacity-20'}`}>
               <div className="font-devanagari text-3xl leading-relaxed tracking-[0.2em] text-neutral-900 min-h-[48px] flex flex-wrap gap-x-5 gap-y-2">
-                {allDetections.length > 0 ? (
-                  allDetections.map((det, idx) => (
+                {latestDetections.length > 0 ? (
+                  latestDetections.map((det, idx) => (
                     <span key={idx} className={
-                      `transition-colors cursor-default select-none ${idx >= accumulatedDetections.length
-                        ? 'text-black font-black pb-1 border-b-4 border-black animate-pulse'
-                        : 'text-neutral-900 hover:text-black'
-                      }`
+                      "transition-colors cursor-default select-none text-black font-black pb-1 border-b-4 border-black animate-pulse"
                     }>
                       {det.hindi_symbol}
                     </span>
@@ -314,7 +311,7 @@ export default function Result() {
               </div>
             </div>
 
-            {allDetections.length > 0 && (
+            {latestDetections.length > 0 && (
               <div className="flex items-center justify-end gap-6 pt-2">
                 <button onClick={handleExportPdf} className="flex items-center gap-1.5 group">
                   <FileText className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
