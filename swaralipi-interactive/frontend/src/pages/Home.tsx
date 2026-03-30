@@ -129,23 +129,41 @@ export default function Home() {
           </div>
 
           <h3 className="text-4xl font-black text-neutral-900 mb-12 leading-tight tracking-tighter">
-            Methodology & <br /> Data Sequence
+            How to Use This
           </h3>
 
           <div className="space-y-16">
-            {[
-              { id: '01', title: 'Data Ingestion', desc: 'Initialize the optical sensor or local file stream. Capture the musical manuscript for high-fidelity coordinate mapping.' },
-              { id: '02', title: 'Segment Isolation', desc: 'Define the Region of Interest (ROI) by dragging a bounding box. This focuses the neural engine.' },
-              { id: '03', title: 'Classification', desc: 'The YOLOv8-driven brain.pt parses visual patterns into the Hindustani pitch-class ontology.' }
-            ].map((step) => (
-              <div key={step.id} className="relative pl-12 border-l-4 border-neutral-900 group">
-                <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-neutral-900 rounded-full group-hover:bg-black transition-all duration-300" />
-                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-3">{step.id} // {step.title}</h4>
-                <p className="text-neutral-500 text-sm leading-relaxed font-medium">
-                  {step.desc}
-                </p>
-              </div>
-            ))}
+            {/* Step 1: Data Ingestion */}
+            <div className="relative pl-12 border-l-4 border-neutral-900 group">
+              <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-neutral-900 rounded-full group-hover:bg-black transition-all duration-300" />
+              <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-3">01 // Data Ingestion</h4>
+              <p className="text-neutral-500 text-sm leading-relaxed font-medium">
+                Start by initializing the optical sensor (camera) or select a local image file.<br />
+                Capture or upload the musical manuscript you want to analyze.<br />
+                The system will prepare the image for precise coordinate mapping.
+              </p>
+            </div>
+
+            {/* Step 2: Segment Isolation */}
+            <div className="relative pl-12 border-l-4 border-neutral-900 group">
+              <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-neutral-900 rounded-full group-hover:bg-black transition-all duration-300" />
+              <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-3">02 // Segment Isolation</h4>
+              <p className="text-neutral-500 text-sm leading-relaxed font-medium">
+                Use your mouse to drag and draw a bounding box around the Region of Interest (ROI) on the manuscript.<br />
+                This step helps the neural engine focus only on the relevant musical notation.
+              </p>
+            </div>
+
+            {/* Step 3: Classification */}
+            <div className="relative pl-12 border-l-4 border-neutral-900 group">
+              <div className="absolute -left-[10px] top-0 w-4 h-4 bg-white border-4 border-neutral-900 rounded-full group-hover:bg-black transition-all duration-300" />
+              <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-neutral-900 mb-3">03 // Classification</h4>
+              <p className="text-neutral-500 text-sm leading-relaxed font-medium">
+                The system uses a YOLOv8-based neural network to analyze the selected region.<br />
+                Visual patterns are recognized and mapped to the Hindustani pitch-class ontology (e.g., Sa, Re, Ga, etc.).<br />
+                The results will display the identified swaras and their positions.
+              </p>
+            </div>
           </div>
         </div>
 
