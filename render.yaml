@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: swara-detection-backend
+    runtime: python
+    rootDir: swaralipi-interactive/backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SWARALIPI_DB_PATH
+        value: /opt/render/project/src/backend/swaralipi.db

@@ -1,10 +1,8 @@
 import axios from "axios";
 
-const PROD_BACKEND_URL = "https://swara-detection.onrender.com";
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000";
-const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? PROD_BACKEND_URL : DEFAULT_BACKEND_URL);
+// Always go through the same API path in dev and production.
+// Vite proxies /api locally; Vercel rewrites /api to Render in production.
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const REQUEST_TIMEOUT_MS = 120000;
 
 const client = axios.create({
@@ -20,7 +18,7 @@ function isRelativeApiBase(base: string) {
 }
 
 export function getBackendHintUrl() {
-  return isRelativeApiBase(API_BASE) ? DEFAULT_BACKEND_URL : API_BASE;
+  return isRelativeApiBase(API_BASE) ? "/api" : API_BASE;
 }
 
 function extractErrorDetail(data: unknown): string | null {
@@ -43,7 +41,7 @@ export function getUserFacingApiError(error: unknown, action: "analyze" | "histo
       const prefix = action === "analyze" ? "Analyze failed" : "History fetch failed";
       return detail ? `${prefix}: ${detail}` : `${prefix}: HTTP ${error.response.status}`;
     }
-    return `Backend not reachable right now. If this is the live app, the Render server may still be waking up. Please retry in about a minute. Backend URL: ${getBackendHintUrl()}.`;
+    return `Backend not reachable right now. Please retry in about a minute. Backend URL: ${getBackendHintUrl()}.`;
   }
 
   if (error instanceof Error && error.message) {

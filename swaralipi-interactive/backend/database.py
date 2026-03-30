@@ -2,11 +2,17 @@
 SQLite database for Swaralipi scan history.
 """
 import sqlite3
+import os
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parent / "swaralipi.db"
+DEFAULT_DB_PATH = Path(__file__).resolve().parent / "swaralipi.db"
+DB_PATH = Path(os.environ.get("SWARALIPI_DB_PATH", str(DEFAULT_DB_PATH)))
+
+def _ensure_db_parent_exists():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 def get_connection():
+    _ensure_db_parent_exists()
     return sqlite3.connect(str(DB_PATH))
 
 def init_db():

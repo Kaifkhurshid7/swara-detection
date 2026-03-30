@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api",
+      "destination": "https://swara-detection.onrender.com/"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://swara-detection.onrender.com/:path*"
+    }
+  ]
+}
