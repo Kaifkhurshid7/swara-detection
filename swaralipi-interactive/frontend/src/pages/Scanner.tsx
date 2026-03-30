@@ -110,24 +110,21 @@ export default function Scanner() {
             </p>
           </header>
 
-          <div className="w-full bg-white border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-700">
+          <div className="w-full bg-transparent border-0 shadow-none overflow-hidden transition-all duration-700">
             {mobile ? (
               <div className="p-6">
-                <div className="relative aspect-[3/4] border-2 border-black overflow-hidden bg-neutral-900">
+                <div className="relative aspect-[3/4] border-0 overflow-hidden bg-transparent">
                   <Webcam
                     ref={webcamRef}
                     audio={false}
                     screenshotFormat="image/png"
-                    className="absolute inset-0 w-full h-full object-cover grayscale opacity-70"
+                    className="absolute inset-0 w-full h-full object-cover"
                     videoConstraints={{ facingMode: "environment" }}
                   />
 
-                  <div className="absolute inset-10 border-2 border-white/30 pointer-events-none">
-                    <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-white" />
-                    <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-white" />
-                  </div>
+                  {/* No overlay borders for natural camera look */}
 
-                  <div className="absolute inset-0 w-full h-[3px] bg-emerald-400 animate-scan z-10 shadow-[0_0_20px_rgba(52,211,153,0.8)]" />
+                  {/* No scanning line for natural camera look */}
 
                   {status === "processing" && (
                     <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center z-20">
@@ -143,10 +140,10 @@ export default function Scanner() {
                     if (src) handleDataIngestion(src);
                   }}
                   disabled={status === "processing"}
-                  className="mt-6 w-full h-16 bg-black text-white flex items-center justify-center gap-4 hover:bg-neutral-800 transition-all active:scale-[0.98] disabled:opacity-50 shadow-[8px_8px_0px_0px_rgba(16,185,129,0.3)]"
+                  className="mt-6 w-full h-14 bg-white text-black border border-neutral-300 rounded-lg flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-base shadow hover:bg-neutral-100 active:scale-[0.98] disabled:opacity-50 transition-all"
                 >
-                  <Zap className="w-5 h-5 text-emerald-400 fill-current" />
-                  <span className="font-black uppercase tracking-[0.4em] text-xs">Execute Capture</span>
+                
+                  Capture
                 </button>
               </div>
             ) : (
