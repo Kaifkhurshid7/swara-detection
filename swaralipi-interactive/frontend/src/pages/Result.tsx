@@ -290,7 +290,7 @@ export default function Result() {
                 {result?.detections && result.detections.length > 0 && (
                   <button onClick={handleStoreLatest} className="flex items-center gap-1.5 group bg-black text-white px-3 py-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none active:translate-y-[1px]">
                     <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Store Latest</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Continue</span>
                   </button>
                 )}
                 {latestDetections.length > 0 && (

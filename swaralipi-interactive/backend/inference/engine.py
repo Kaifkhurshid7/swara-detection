@@ -528,7 +528,7 @@ def run_inference(image_bytes: bytes, conf_threshold: float = 0.15):
                                 xyxy[3] - padding + s_top
                             ]
                         })
-            # Keep only the single BEST result for this segment to eliminate "random guesses"
+            # single BEST result for this segment to eliminate "random guesses"
             if segment_dets:
                 best = max(segment_dets, key=lambda x: x["confidence"])
                 all_detections.append(best)
