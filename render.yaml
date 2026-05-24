@@ -1,6 +1,9 @@
+# Render Deployment Blueprint
+# Docs: https://render.com/docs/blueprint-spec
+
 services:
   - type: web
-    name: swara-detection-backend
+    name: swaralipi-backend
     runtime: python
     rootDir: swaralipi-interactive/backend
     plan: free
