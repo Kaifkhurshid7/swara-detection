@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api",
-      "destination": "https://swara-detection.onrender.com/"
+      "destination": "https://swaralipi-backend.onrender.com/"
     },
     {
       "source": "/api/:path*",
-      "destination": "https://swara-detection.onrender.com/:path*"
+      "destination": "https://swaralipi-backend.onrender.com/:path*"
     }
   ]
 }
