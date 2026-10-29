@@ -68,8 +68,8 @@ A custom-trained **YOLOv8** detector finds each symbol. A post-processing stage 
 
 <table>
   <tr>
-    <td width="50%"><img src="swara_extracted/runs/detect/swara_recognition_150_epochs/val_batch0_pred.jpg" alt="Validation predictions"><p align="center"><b>Predictions</b> on held-out validation images</p></td>
-    <td width="50%"><img src="swara_extracted/runs/detect/swara_recognition_150_epochs/confusion_matrix_normalized.png" alt="Confusion matrix"><p align="center"><b>Normalised confusion matrix</b></p></td>
+    <td width="50%"><img src="ml/runs/swara_recognition_150_epochs/val_batch0_pred.jpg" alt="Validation predictions"><p align="center"><b>Predictions</b> on held-out validation images</p></td>
+    <td width="50%"><img src="ml/runs/swara_recognition_150_epochs/confusion_matrix_normalized.png" alt="Confusion matrix"><p align="center"><b>Normalised confusion matrix</b></p></td>
   </tr>
 </table>
 
@@ -108,7 +108,7 @@ flowchart LR
     subgraph Server["FastAPI Backend (Render)"]
         direction TB
         API["main.py<br/>REST routes"]
-        ENG["inference/engine.py<br/>YOLOv8 + refinement"]
+        ENG["services/inference/engine.py<br/>YOLOv8 + refinement"]
         MAP["mapping/swara_map.py<br/>class ID → Devanagari"]
         PARSE["import_parser.py<br/>MusicXML → swaras"]
         DB[("SQLite<br/>scan history")]
@@ -128,7 +128,7 @@ flowchart LR
 
 ## Detection Pipeline
 
-Every request to `/analyze` goes through the following pipeline in [`engine.py`](swaralipi-interactive/backend/inference/engine.py).
+Every request to `/analyze` goes through the following pipeline in [`engine.py`](backend/app/services/inference/engine.py).
 
 ```mermaid
 flowchart TD
@@ -187,7 +187,7 @@ sequenceDiagram
 
 ## Supported Swaras
 
-The model recognises 12 classes. Class order matches [`data.yaml`](swaralipi-interactive/ml_pipeline/data.yaml).
+The model recognises 12 classes. Class order matches [`data.yaml`](ml/data.yaml).
 
 | ID | Swara | Symbol | ID | Swara | Symbol |
 |:-:|---|:-:|:-:|---|:-:|
@@ -207,15 +207,15 @@ Komal notes are written with an anudatta (॒, line below) and tivra notes with 
 ```mermaid
 flowchart LR
     A["Handwritten<br/>manuscript crops"] --> B["Annotate<br/>12 classes · YOLO format"]
-    B --> C["Train / val split<br/>swara_extracted/data"]
+    B --> C["Train / val split<br/>ml/data"]
     C --> D["YOLOv8n fine-tune<br/>150 epochs · 640 px"]
     D --> E["best.pt / brain.pt"]
     E --> F["Backend<br/>models/brain.pt"]
 ```
 
-Training uses augmentation tuned for a small dataset: HSV jitter, ±15° rotation, translation, scale and shear, mosaic and light mixup. **Horizontal flip is disabled** because notation can be directional. See [`train.py`](swaralipi-interactive/ml_pipeline/train.py).
+Training uses augmentation tuned for a small dataset: HSV jitter, ±15° rotation, translation, scale and shear, mosaic and light mixup. **Horizontal flip is disabled** because notation can be directional. See [`train.py`](ml/train.py).
 
-Final-epoch validation metrics from [`results.csv`](swara_extracted/runs/detect/swara_recognition_150_epochs/results.csv):
+Final-epoch validation metrics from [`results.csv`](ml/runs/swara_recognition_150_epochs/results.csv):
 
 | Metric | Value |
 |---|:-:|
@@ -224,10 +224,10 @@ Final-epoch validation metrics from [`results.csv`](swara_extracted/runs/detect/
 | mAP@50 | **0.909** |
 | mAP@50-95 | **0.806** |
 
-The dataset is small (roughly 80 training and 74 validation images), so expect lower accuracy on handwriting styles that differ from the training data. All curves and batches are in [`swara_extracted/runs/detect/swara_recognition_150_epochs/`](swara_extracted/runs/detect/swara_recognition_150_epochs/).
+The dataset is small (roughly 80 training and 74 validation images), so expect lower accuracy on handwriting styles that differ from the training data. All curves and batches are in [`ml/runs/swara_recognition_150_epochs/`](ml/runs/swara_recognition_150_epochs/).
 
 <p align="center">
-  <img src="swara_extracted/runs/detect/swara_recognition_150_epochs/results.png" alt="Training curves" width="85%">
+  <img src="ml/runs/swara_recognition_150_epochs/results.png" alt="Training curves" width="85%">
 </p>
 
 ---
@@ -235,36 +235,37 @@ The dataset is small (roughly 80 training and 74 validation images), so expect l
 ## Project Structure
 
 ```text
-.
-├── render.yaml                     # Render blueprint (backend)
-├── swara_extracted/                # Dataset, labels and training run artifacts
-│   ├── data/                       #   images + YOLO labels
-│   ├── runs/detect/…               #   curves, confusion matrix, weights
-│   └── data.yaml
+swaralipi-lab/
+├── backend/                        # FastAPI service (deployed to Render)
+│   ├── app/
+│   │   ├── main.py                 #   REST routes (thin controllers)
+│   │   ├── database.py             #   SQLite persistence
+│   │   ├── mapping/swara_map.py    #   class ID → name / Devanagari
+│   │   └── services/
+│   │       ├── inference/engine.py #   YOLOv8 + multi-stage refinement
+│   │       └── import_parser.py    #   MusicXML → swara conversion
+│   ├── models/brain.pt             #   trained weights served by the API
+│   ├── tests/                      #   pytest suite
+│   ├── requirements.txt · requirements-dev.txt · runtime.txt
+│   └── .env.example
+├── frontend/                       # React + TypeScript SPA (deployed to Vercel)
+│   ├── src/
+│   │   ├── api/client.ts           #   Axios client + types
+│   │   ├── pages/                  #   Home, Scanner, Result, History, Import
+│   │   ├── components/             #   Navbar, NeuralTooltip
+│   │   └── utils/                  #   exportNotation.ts, device.ts
+│   ├── vite.config.ts · tailwind.config.js
+│   └── vercel.json                 #   production API rewrites
+├── ml/                             # Model development (not deployed)
+│   ├── train.py                    #   YOLOv8 training script
+│   ├── data.yaml                   #   dataset config (12 classes)
+│   ├── data/                       #   images/ + labels/ (YOLO) and raw/ source crops
+│   ├── runs/                       #   training outputs: curves, confusion matrix, weights
+├── scripts/dev.py                  # run backend + frontend together (cross-platform)
+├── .github/workflows/ci.yml        # CI: backend tests + frontend build
 ├── docs/images/                    # README screenshots
-└── swaralipi-interactive/
-    ├── app.py                      # Local orchestrator (backend + frontend)
-    ├── run-all.bat · START-HERE.bat
-    ├── backend/
-    │   ├── main.py                 # FastAPI routes (thin controllers)
-    │   ├── database.py             # SQLite persistence
-    │   ├── import_parser.py        # MusicXML → swara conversion
-    │   ├── inference/engine.py     # YOLOv8 + multi-stage refinement
-    │   ├── mapping/swara_map.py    # class ID → name / Devanagari
-    │   ├── models/                 # brain.pt, best.pt
-    │   ├── requirements.txt · runtime.txt · Procfile
-    ├── frontend/
-    │   ├── src/
-    │   │   ├── api/client.ts       # Axios client + types
-    │   │   ├── pages/              # Home, Scanner, Result, History, Import
-    │   │   ├── components/         # Navbar, NeuralTooltip
-    │   │   └── utils/              # exportNotation.ts, device.ts
-    │   ├── vite.config.ts · tailwind.config.js
-    │   └── vercel.json             # production API rewrites
-    └── ml_pipeline/
-        ├── train.py                # YOLOv8 training script
-        ├── setup_datasets.py       # dataset preparation
-        └── data.yaml
+├── render.yaml                     # Render blueprint (backend)
+└── README.md
 ```
 
 ---
@@ -275,49 +276,55 @@ The dataset is small (roughly 80 training and 74 validation images), so expect l
 
 - **Python 3.11** (3.10+ works)
 - **Node.js 18+** and npm
-- Model weights at `swaralipi-interactive/backend/models/brain.pt` (included in the repo)
+- Model weights at `backend/models/brain.pt` (included in the repo)
 
-### One command (Windows)
-
-```bat
-swaralipi-interactive\run-all.bat
-```
-
-Or run `python swaralipi-interactive/app.py`.
-
-### Manual setup
-
-**1. Backend**
+### Quick start
 
 ```bash
-cd swaralipi-interactive/backend
-python -m venv venv
-venv\Scripts\activate            # macOS/Linux: source venv/bin/activate
+python -m venv backend/venv
+backend/venv/Scripts/python -m pip install -r backend/requirements.txt   # macOS/Linux: backend/venv/bin/python
+python scripts/dev.py                                                     # starts backend + frontend
+```
+
+`scripts/dev.py` installs frontend dependencies on first run, starts the API on port 8000 and the Vite dev server, and stops both on Ctrl+C.
+
+### Run the services separately
+
+```bash
+# Backend
+cd backend
+python -m venv venv && venv\Scriptsctivate     # macOS/Linux: source venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
+uvicorn app.main:app --reload --port 8000
 
-**2. Frontend**
-
-```bash
-cd swaralipi-interactive/frontend
+# Frontend (second terminal)
+cd frontend
 npm install
 npm run dev
 ```
 
 Open the URL Vite prints (normally <http://localhost:5173>). Requests to `/api` are proxied to the backend on port 8000. Interactive API docs are at <http://localhost:8000/docs>.
 
-> **Note:** the inference engine builds its template bank from the dataset in `swara_extracted/data`, so keep that folder next to `swaralipi-interactive/`.
+> **Note:** the inference engine builds its template bank from the dataset in `ml/data`, so keep that folder in the repo (the backend resolves it relative to the repo root).
+
+### Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest
+```
+
+CI ([`ci.yml`](.github/workflows/ci.yml)) runs the backend tests and a production frontend build on every push and pull request.
 
 ### Retraining the model
 
 ```bash
-cd swaralipi-interactive/ml_pipeline
-python setup_datasets.py     # prepare datasets/images and datasets/labels
-python train.py              # 150 epochs, writes to runs/swaralipi/exp
+pip install -r backend/requirements.txt
+python ml/train.py           # 150 epochs, writes to ml/runs/swaralipi/
 ```
 
-Copy the resulting `weights/best.pt` to `backend/models/brain.pt` to use it.
+Copy `ml/runs/swaralipi/weights/best.pt` to `backend/models/brain.pt` to use it. The dataset is already in YOLO layout under `ml/data`, so no preparation step is needed.
 
 ---
 
@@ -396,8 +403,10 @@ flowchart LR
 
 | Part | Platform | Config |
 |---|---|---|
-| Frontend | Vercel | [`vercel.json`](swaralipi-interactive/frontend/vercel.json) rewrites `/api/*` to the Render backend |
-| Backend | Render (free plan) | [`render.yaml`](render.yaml), start command `gunicorn -w 1 -k uvicorn.workers.UvicornWorker main:app` |
+| Frontend | Vercel | [`vercel.json`](frontend/vercel.json) rewrites `/api/*` to the Render backend |
+| Backend | Render (free plan) | [`render.yaml`](render.yaml), start command `gunicorn -w 1 -k uvicorn.workers.UvicornWorker app.main:app` |
+
+In the Vercel project settings, set **Root Directory** to `frontend`. Render picks up `backend` from `render.yaml` (`rootDir: backend`).
 
 The first request after idle time on the free tier can take 30 to 60 seconds while the service wakes up.
 

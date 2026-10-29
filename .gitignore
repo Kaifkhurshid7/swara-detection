@@ -24,6 +24,7 @@ dist/
 *.swp
 *.swo
 .kiro/
+.claude/
 
 # ─────────────────────────────────────────────────────────────
 # OS
@@ -36,10 +37,19 @@ Thumbs.db
 # ─────────────────────────────────────────────────────────────
 *.log
 *.zip
-swara_extracted/
+*.cache
+ml/runs/swaralipi/
 
 # ─────────────────────────────────────────────────────────────
 # ML Model Weights (large binary files)
 # Uncomment to track in Git LFS or remove to exclude entirely
 # ─────────────────────────────────────────────────────────────
 # backend/models/*.pt
+
+# Tests
+.pytest_cache/
+backend/tests/test.db
+
+# TypeScript emit from tsc -b
+frontend/vite.config.js
+frontend/vite.config.d.ts

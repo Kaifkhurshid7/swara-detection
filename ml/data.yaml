@@ -1,0 +1,21 @@
+# Swaralipi YOLO dataset - 12 swara classes
+# Paths are resolved relative to this file.
+#   data/images/{train,val}  - manuscript crops
+#   data/labels/{train,val}  - YOLO-format boxes
+#   data/raw/                - original per-class source images
+train: data/images/train
+val: data/images/val
+nc: 12
+names:
+  - Dha
+  - Ga
+  - Komal Dha
+  - Komal Ga
+  - Komal Ni
+  - Komal Re
+  - Ma
+  - Ni
+  - Pa
+  - Re
+  - Sa
+  - Tivra Ma
