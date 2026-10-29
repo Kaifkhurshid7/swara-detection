@@ -59,8 +59,12 @@ A custom-trained **YOLOv8** detector finds each symbol. A post-processing stage 
     <td width="50%"><img src="docs/images/scanner.png" alt="Scanner"><p align="center"><b>Data Ingestion</b>: upload or capture a manuscript</p></td>
   </tr>
   <tr>
+    <td width="50%"><img src="docs/images/result.png" alt="Result"><p align="center"><b>Result</b>: crop a symbol, get the swara and confidence</p></td>
     <td width="50%"><img src="docs/images/history.png" alt="Archive"><p align="center"><b>Archive</b>: scan history with confidence bars</p></td>
+  </tr>
+  <tr>
     <td width="50%"><img src="docs/images/import.png" alt="Parser"><p align="center"><b>Parser Engine</b>: MusicXML to swara conversion</p></td>
+    <td width="50%"></td>
   </tr>
 </table>
 
