@@ -53,7 +53,7 @@ export default function NeuralTooltip({
           {hindiSymbol}
         </div>
         <div className="flex flex-col">
-          <span className={`${inline ? "text-[8px]" : "text-[10px]"} font-black uppercase tracking-widest text-neutral-400 leading-none mb-1`}>Classification</span>
+          <span className={`${inline ? "text-[8px]" : "text-[10px]"} font-black uppercase tracking-widest text-neutral-400 leading-none mb-1`}>Swara</span>
           <span className={`${inline ? "text-[15px]" : "text-sm"} font-bold text-neutral-900 leading-tight`}>{englishName}</span>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function NeuralTooltip({
       {/* Confidence Module */}
       <div className={`${inline ? "space-y-1.5" : "space-y-2"}`}>
         <div className={`flex items-center justify-between ${inline ? "text-[8px]" : "text-[9px]"} font-black uppercase tracking-widest text-neutral-400`}>
-          <span>Accuracy</span>
+          <span>Confidence</span>
           <span className="text-neutral-900">{pct}%</span>
         </div>
         <div className={`${inline ? "h-1" : "h-1.5"} w-full bg-neutral-100 rounded-full overflow-hidden`}>

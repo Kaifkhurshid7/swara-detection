@@ -10,14 +10,12 @@ import {
 import { exportToMusicXML, exportToPdf, exportToText, downloadFile } from "../utils/exportNotation";
 import {
   Loader2,
-  Database,
-  Maximize2,
   CheckCircle2,
-  Layers,
   Crosshair,
+  Crop as CropIcon,
+  ArrowLeft,
   Copy,
   Check,
-  ClipboardList,
   FileCode2,
   Code2,
   FileText
@@ -141,296 +139,243 @@ export default function Result() {
 
   if (!source) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white font-sans">
-        <Loader2 className="w-12 h-12 text-black animate-spin mb-4" />
-        <span className="text-black font-black uppercase tracking-[0.5em] text-[10px]">Synchronizing_Nodes...</span>
+      <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center bg-neutral-50 font-sans">
+        <Loader2 className="mb-4 h-10 w-10 animate-spin text-neutral-900" />
+        <span className="text-sm font-bold text-neutral-900">Loading your manuscript...</span>
       </div>
     );
   }
 
+  const hasDetections = !!result?.detections && result.detections.length > 0;
+  const step = result ? 3 : crop ? 2 : 1;
+
+  const steps = [
+    { n: 1, label: "Select" },
+    { n: 2, label: "Read" },
+    { n: 3, label: "Export" },
+  ];
+
   return (
-    <div className="relative min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row items-start overflow-hidden font-sans text-neutral-900 selection:bg-black selection:text-white">
-
-      {/* LEFT PANEL: SYSTEM CONSOLE */}
-      <aside className="w-full lg:w-[380px] xl:w-[400px] bg-white border-r-4 border-black flex flex-col self-stretch relative z-20">
-
-        {/* <div className="p-8 border-b-4 border-black flex items-center justify-between bg-neutral-50/50">
+    <div className="relative min-h-[calc(100vh-4rem)] bg-neutral-50 font-sans text-neutral-900 selection:bg-neutral-900 selection:text-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
-              <Terminal className="w-6 h-6 text-emerald-400" />
-            </div>
+            <button
+              onClick={() => navigate("/scan")}
+              aria-label="Scan another image"
+              className="group flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            </button>
             <div>
-              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-900 leading-none mb-1">Inference_Node</h2>
-              <p className="text-[9px] text-neutral-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                <Cpu className="w-3 h-3" /> YOLOv8_Engine_Active
-              </p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-neutral-500">Step 2 of 2</p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">Select and read</h1>
             </div>
           </div>
-          <button
-            onClick={() => navigate("/scan")}
-            className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        </div> */}
 
-        <div className="flex-1 overflow-y-auto p-5 lg:p-6 space-y-6 scrollbar-hide">
+          {/* Progress stepper */}
+          <ol className="flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-2">
+            {steps.map((s, i) => {
+              const done = step > s.n || (s.n === 3 && hasDetections);
+              const active = step === s.n;
+              return (
+                <li key={s.n} className="flex items-center gap-2">
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-extrabold transition-colors ${
+                      done || active ? "bg-neutral-900 text-white" : "bg-neutral-200 text-neutral-500"
+                    }`}
+                  >
+                    {done && s.n < step ? <Check className="h-3.5 w-3.5" /> : s.n}
+                  </span>
+                  <span className={`text-xs font-bold ${active ? "text-neutral-900" : "text-neutral-400"}`}>{s.label}</span>
+                  {i < steps.length - 1 && <span aria-hidden className="mx-1 w-6 border-t-2 border-dashed border-neutral-300" />}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
 
-          <section className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Layers className="w-4 h-4 text-black" />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Sequence_Protocol</h3>
-            </div>
-
-            <div className="relative space-y-3">
-              <div className={`flex items-start gap-4 p-4 border-2 transition-all duration-300 ${!crop ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
-                <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${!crop ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>01</div>
-                <div className="flex-1">
-                  <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Spatial Selection</h4>
-                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">
-                    Select and isolate the Region of Interest (ROI) on your manuscript.<br />
-                    This helps the neural engine focus on the relevant musical notation for accurate analysis.
-                  </p>
-                </div>
-                {crop && <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" />}
+        {/* Workspace: fixed height on desktop, only the swara list scrolls */}
+        <div className="mt-6 grid gap-6 lg:h-[calc(100vh-11.5rem)] lg:min-h-[560px] lg:grid-cols-[420px_minmax(0,1fr)]">
+          {/* LEFT: one panel */}
+          <aside className="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-card">
+            {/* Detected swaras (scrolls) */}
+            <section className="flex min-h-0 flex-1 flex-col p-6 pb-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-neutral-900">Detected swaras</h2>
+                {hasDetections && (
+                  <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600">
+                    {result!.detections!.length} found
+                  </span>
+                )}
               </div>
 
-              <div className={`flex items-start gap-4 p-4 border-2 transition-all duration-300 ${crop && !result ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-neutral-200 opacity-50 shadow-none'}`}>
-                <div className={`w-8 h-8 flex items-center justify-center text-[11px] font-black ${crop && !result ? 'bg-black text-white' : 'bg-neutral-200 text-neutral-500'}`}>02</div>
-                <div className="flex-1">
-                  <h4 className="text-[11px] font-black uppercase tracking-widest mb-1 text-neutral-900">Swaras Synthesis</h4>
-                  <p className="text-[10px] leading-relaxed font-bold text-neutral-500">
-                    The system will now analyze the selected region and classify each swara (note) in sequence.<br />
-                    Results will be displayed below as the neural engine completes its recognition.
-                  </p>
-                </div>
-                {loading ? <Loader2 className="w-5 h-5 text-emerald-500 mt-1 animate-spin" /> : result ? <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" /> : null}
-              </div>
-            </div>
-          </section>
-
-          <section className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-3 mb-4">
-              <Database className="w-4 h-4 text-black" />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Detections</h3>
-            </div>
-
-            <div className="space-y-3">
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-4 border-4 border-dashed border-neutral-100 bg-neutral-50/50">
-                  <Loader2 className="w-12 h-12 text-black animate-spin" />
-                  <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.5em]">De-Convolution In Progress...</span>
-                </div>
-              ) : result ? (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {result.detections && result.detections.length > 0 ? (
-                    <div className="max-h-[38vh] overflow-y-auto rounded-2xl border-2 border-black bg-white">
-                      <div className="divide-y divide-neutral-200">
-                      {result.detections.map((det, idx) => {
+              <div className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-thin">
+                {loading ? (
+                  <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50">
+                    <Loader2 className="h-8 w-8 animate-spin text-neutral-900" />
+                    <span className="text-sm font-semibold text-neutral-600">Reading your notation...</span>
+                  </div>
+                ) : result ? (
+                  hasDetections ? (
+                    <ul className="space-y-2">
+                      {result.detections!.map((det, idx) => {
                         const pct = Math.round(det.confidence * 100);
                         return (
-                        <div key={idx} className="grid grid-cols-[56px_minmax(0,1fr)_56px] items-center gap-3 px-4 py-3">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-3xl font-black text-neutral-900" style={{ fontFamily: "serif" }}>
-                            {det.hindi_symbol}
-                          </div>
-
-                          <div className="min-w-0">
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-neutral-400">Classification</p>
-                                <p className="truncate text-[15px] font-bold text-neutral-900">{det.class_name || "Unknown"}</p>
+                          <li key={idx} className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 hover:border-neutral-400 transition-colors">
+                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-neutral-100 font-serif text-2xl font-bold text-neutral-900">
+                              {det.hindi_symbol}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-baseline justify-between gap-3">
+                                <p className="truncate text-sm font-extrabold text-neutral-900">{det.class_name || "Unknown"}</p>
+                                <span className="text-xs font-bold text-neutral-500">{pct}%</span>
                               </div>
-                              <span className="shrink-0 rounded-full border border-neutral-300 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-neutral-600">
-                                {pct}%
-                              </span>
+                              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+                                <div className="h-full rounded-full bg-neutral-900 transition-all duration-700" style={{ width: `${pct}%` }} />
+                              </div>
                             </div>
-                            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-                              <div
-                                className="h-full rounded-full bg-black transition-all duration-700"
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="text-right text-[10px] font-black uppercase tracking-[0.25em] text-neutral-300">
-                            {String(idx + 1).padStart(2, "0")}
-                          </div>
-                        </div>
+                            <span className="w-5 text-right text-[11px] font-bold text-neutral-300">{idx + 1}</span>
+                          </li>
                         );
                       })}
-                      </div>
-                    </div>
+                    </ul>
                   ) : (
-                    <div className="border-4 border-dashed border-neutral-200 p-8 text-center">
-                      <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest leading-loose">
-                        Null <br />
-                        <span className="text-red-500">[ Recalibrate ROI ]</span>
-                      </p>
+                    <div className="flex h-full min-h-[160px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50 p-6 text-center">
+                      <p className="text-sm font-extrabold text-neutral-900">No swaras found</p>
+                      <p className="mt-1 text-xs text-neutral-500">{result.message || "Try selecting a tighter area around the notation."}</p>
                     </div>
+                  )
+                ) : (
+                  <div className="flex h-full min-h-[160px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50 p-6 text-center">
+                    <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-neutral-900 shadow-sm">
+                      <CropIcon className="h-5 w-5" />
+                    </span>
+                    <p className="text-sm font-extrabold text-neutral-900">Waiting for your selection</p>
+                    <p className="mt-1 text-xs text-neutral-500">Drag a box over the notation to begin.</p>
+                  </div>
+                )}
+              </div>
+
+              {hasDetections && (
+                <button
+                  onClick={handleStoreLatest}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-neutral-900 px-4 py-3 text-sm font-bold text-white hover:bg-black active:scale-[0.99] transition-all"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Add to notation
+                </button>
+              )}
+            </section>
+
+            {/* Your notation (pinned) */}
+            <section className="shrink-0 border-t border-neutral-200 bg-neutral-50 p-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-neutral-900">Your notation</h2>
+                {latestDetections.length > 0 && (
+                  <button onClick={handleClear} className="text-xs font-bold text-neutral-500 hover:text-neutral-900 transition-colors">
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="mt-3 max-h-24 min-h-[56px] overflow-y-auto rounded-2xl border border-neutral-200 bg-white px-4 py-3">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 font-devanagari text-2xl leading-relaxed text-neutral-900">
+                  {latestDetections.length > 0 ? (
+                    latestDetections.map((det, idx) => (
+                      <span key={idx} className="select-none border-b-2 border-neutral-900 font-bold">
+                        {det.hindi_symbol}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm font-medium text-neutral-400">Nothing added yet</span>
                   )}
                 </div>
-              ) : (
-                <div className="border-4 border-dashed border-neutral-100 py-12 px-6 text-center">
-                  <p className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.4em] leading-loose italic">
-                    Waiting for Input... <br />
-                    <span className="normal-case text-neutral-400 font-bold">Initialize workbench coordinates</span>
-                  </p>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="space-y-4 pt-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ClipboardList className="w-4 h-4 text-black" />
-                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-neutral-900">Transcription</h3>
               </div>
-              <div className="flex items-center gap-4">
-                {result?.detections && result.detections.length > 0 && (
-                  <button onClick={handleStoreLatest} className="flex items-center gap-1.5 group bg-black text-white px-3 py-1.5 hover:bg-neutral-800 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none active:translate-y-[1px]">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Continue</span>
+
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {[
+                  { label: "PDF", icon: FileText, onClick: handleExportPdf },
+                  { label: "XML", icon: FileCode2, onClick: handleExportXML },
+                  { label: "TXT", icon: Code2, onClick: handleExportText },
+                ].map(({ label, icon: Icon, onClick }) => (
+                  <button
+                    key={label}
+                    onClick={onClick}
+                    disabled={latestDetections.length === 0}
+                    title={label === "XML" ? "Export MusicXML" : `Export ${label}`}
+                    className="flex flex-col items-center gap-1 rounded-xl border border-neutral-200 bg-white px-2 py-2.5 text-[11px] font-bold text-neutral-700 hover:border-neutral-900 hover:text-neutral-900 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-neutral-200 disabled:hover:text-neutral-700 transition-colors"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {label}
                   </button>
-                )}
-                {latestDetections.length > 0 && (
-                  <button onClick={handleClear} className="flex items-center gap-1.5 group hover:bg-neutral-100 px-3 py-1.5 transition-colors border-2 border-transparent hover:border-black">
-                    <span className="text-[10px] font-black text-black uppercase tracking-widest">Clear</span>
-                  </button>
-                )}
+                ))}
+                <button
+                  onClick={handleCopyNotation}
+                  disabled={latestDetections.length === 0}
+                  className="flex flex-col items-center gap-1 rounded-xl bg-neutral-900 px-2 py-2.5 text-[11px] font-bold text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
+            </section>
+          </aside>
+
+          {/* RIGHT: manuscript viewer */}
+          <main className="flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-3xl border border-neutral-200 bg-white p-5 shadow-card sm:p-6">
+            <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <CropIcon className="h-4 w-4 text-neutral-900" />
+                <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-neutral-900">Manuscript viewer</h2>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600">
+                <Crosshair className="h-3.5 w-3.5" />
+                {crop ? `Selection at ${Math.round(crop.x)}, ${Math.round(crop.y)}` : "No selection yet"}
               </div>
             </div>
 
-            <div className={`p-5 border-4 border-black bg-white transition-all ${latestDetections.length ? 'opacity-100' : 'opacity-20'}`}>
-              <div className="font-devanagari text-3xl leading-relaxed tracking-[0.2em] text-neutral-900 min-h-[48px] flex flex-wrap gap-x-5 gap-y-2">
-                {latestDetections.length > 0 ? (
-                  latestDetections.map((det, idx) => (
-                    <span key={idx} className={
-                      "transition-colors cursor-default select-none text-black font-black pb-1 border-b-4 border-black animate-pulse"
-                    }>
-                      {det.hindi_symbol}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-xs font-black uppercase tracking-[0.5em] text-neutral-300 italic">No_Data</span>
-                )}
-              </div>
+            <div className="min-h-0 flex-1 overflow-auto rounded-2xl border border-neutral-200 bg-neutral-50 p-3 sm:p-4">
+              <ReactCrop
+                crop={crop}
+                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                onComplete={onComplete}
+                className="max-w-full no-greyscale-crop self-start"
+              >
+                <img
+                  ref={imgRef}
+                  src={source}
+                  alt="Your uploaded manuscript"
+                  className="max-h-none min-h-0 h-auto w-auto max-w-full manuscript-target align-top rounded-lg"
+                  style={{ maxWidth: "100%" }}
+                  crossOrigin="anonymous"
+                />
+              </ReactCrop>
             </div>
-
-            {latestDetections.length > 0 && (
-              <div className="flex items-center justify-end gap-6 pt-2">
-                <button onClick={handleExportPdf} className="flex items-center gap-1.5 group">
-                  <FileText className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
-                  <span className="text-[10px] font-black text-neutral-400 group-hover:text-black uppercase tracking-widest transition-colors">Export PDF</span>
-                </button>
-                <button onClick={handleExportXML} className="flex items-center gap-1.5 group">
-                  <FileCode2 className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
-                  <span className="text-[10px] font-black text-neutral-400 group-hover:text-black uppercase tracking-widest transition-colors">Export XML</span>
-                </button>
-                <button onClick={handleExportText} className="flex items-center gap-1.5 group">
-                  <Code2 className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />
-                  <span className="text-[10px] font-black text-neutral-400 group-hover:text-black uppercase tracking-widest transition-colors">Export TXT</span>
-                </button>
-                <div className="w-[2px] h-4 bg-neutral-200 mx-1" />
-                <button onClick={handleCopyNotation} className="flex items-center gap-2 group">
-                  <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${copied ? 'text-black' : 'text-neutral-400 group-hover:text-black'}`}>
-                    {copied ? 'Copied' : 'Copy'}
-                  </span>
-                  {copied ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-neutral-400 group-hover:text-black transition-colors" />}
-                </button>
-              </div>
-            )}
-          </section>
+            <p className="mt-3 shrink-0 text-xs text-neutral-500">Tip: drag on the image to draw a box. Release to read the swaras inside it.</p>
+          </main>
         </div>
-        {/* 
-        <div className="p-8 border-t-4 border-black bg-neutral-900 text-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em]">Node_Sync: OK</span>
-          </div>
-          <p className="text-[9px] font-bold text-neutral-400 uppercase">Kernel_v4.0.2</p>
-        </div> */}
-      </aside>
-
-      {/* RIGHT PANEL: VISUAL WORKBENCH */}
-      <main className="flex-1 self-stretch p-5 lg:p-8 flex flex-col relative bg-[#F8F9FA]">
-        <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} />
-
-        <div className="relative z-10 flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-black" />
-            <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-black">Precision_Workspace</h3>
-          </div>
-          <div className="flex items-center gap-8 bg-white border-2 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <div className="flex items-center gap-3 border-r-2 border-neutral-100 pr-6">
-              <Crosshair className="w-4 h-4 text-black" />
-              <span className="text-[10px] font-black font-mono uppercase">
-                {crop ? `${Math.round(crop.x)} : ${Math.round(crop.y)}` : '00 : 00'}
-              </span>
-            </div>
-            <Maximize2 className="w-4 h-4 text-black hover:scale-110 cursor-pointer transition-transform" />
-          </div>
-        </div>
-
-        <div className="relative z-10 flex-1 bg-white border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,0.05)] p-4 lg:p-6 flex items-start justify-start overflow-auto">
-          <ReactCrop
-            crop={crop}
-            onChange={(_, percentCrop) => setCrop(percentCrop)}
-            onComplete={onComplete}
-            className="max-w-full no-greyscale-crop self-start"
-          >
-            <img
-              ref={imgRef}
-              src={source}
-              alt="Manuscript"
-              className="max-h-none min-h-0 h-auto w-auto max-w-full transition-all duration-500 manuscript-target align-top"
-              style={{ maxWidth: "100%" }}
-              crossOrigin="anonymous"
-            />
-          </ReactCrop>
-        </div>
-        {/* 
-        <div className="relative z-10 mt-10 flex justify-center">
-          <div className="px-8 py-4 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center gap-8">
-            <div className="flex items-center gap-3">
-              <div className={`w-3 h-3 rounded-full ${loading ? 'bg-amber-500 animate-pulse' : 'bg-black'}`} />
-              <span className="text-[11px] font-black uppercase tracking-widest">ROI_{crop ? 'LOCKED' : 'AWAITING'}</span>
-            </div>
-            <div className="w-[2px] h-6 bg-black" />
-            <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest italic">
-              Define manuscript boundaries to trigger neural handshake
-            </p>
-          </div>
-        </div> */}
-      </main>
+      </div>
 
       <style>{`
-        /* THE "HARD RESET" CSS */
-        
-        /* 1. Stop any grayscale filtering on the image itself */
         .manuscript-target {
           filter: none !important;
           -webkit-filter: none !important;
           opacity: 1 !important;
         }
 
-        /* 2. Kill the dark overlay that causes the "greyscale" look */
         .ReactCrop__overlay, .ReactCrop__crop-mask {
           display: none !important;
-          background-color: transparent !important;
-          opacity: 0 !important;
         }
 
-        /* 3. Ensure the selection box doesn't dim the background */
         .ReactCrop__crop-selection {
-          border: 3px solid #000 !important;
-          box-shadow: none !important; 
-          border-radius: 0px !important;
-          background-color: transparent !important;
+          border: 2px solid #171717 !important;
+          box-shadow: none !important;
+          border-radius: 6px !important;
+          background-color: rgba(23, 23, 23, 0.06) !important;
         }
 
-        /* 4. Ensure the child container doesn't have a background color */
         .ReactCrop__child-wrapper {
           background-color: transparent !important;
         }
@@ -438,21 +383,22 @@ export default function Result() {
         .ReactCrop__crop-selection:after {
           content: '';
           position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
+          inset: 0;
           border: 1px dashed #fff;
+          border-radius: 4px;
           pointer-events: none;
         }
 
         .ReactCrop__drag-handle {
-          width: 10px !important;
-          height: 10px !important;
-          background-color: #000 !important;
-          border: 1px solid #fff !important;
-          border-radius: 0% !important;
+          width: 12px !important;
+          height: 12px !important;
+          background-color: #fff !important;
+          border: 2px solid #171717 !important;
+          border-radius: 50% !important;
         }
-        
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
+
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
         }
       `}</style>
     </div>
