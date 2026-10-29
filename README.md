@@ -1,170 +1,354 @@
-# Swaralipi Lab
+<div align="center">
 
-> AI-powered detection and classification of Indian Classical music notation (Swaralipi) from handwritten manuscripts using YOLOv8 object detection.
+# 🎼 Swaralipi Lab
 
-![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green?logo=fastapi)
-![React](https://img.shields.io/badge/React-18-blue?logo=react)
-![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-purple)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)
+### Neural inference terminal for handwritten Indian Classical music notation
+
+Upload or photograph a handwritten *swaralipi* manuscript, crop a region, and get every swara identified in Devanagari, with confidence scores, exportable notation and a persistent scan archive.
+
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss&logoColor=white)
+![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-111F68)
+![Vercel](https://img.shields.io/badge/Frontend-Vercel-000000?logo=vercel)
+![Render](https://img.shields.io/badge/Backend-Render-46E3B7?logo=render&logoColor=black)
+
+</div>
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Detection Pipeline](#detection-pipeline)
+- [Request Flow](#request-flow)
+- [Supported Swaras](#supported-swaras)
+- [Model Training and Performance](#model-training-and-performance)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [API Reference](#api-reference)
+- [Deployment](#deployment)
+- [Design Decisions](#design-decisions)
+- [Limitations](#limitations)
+- [Roadmap](#roadmap)
+- [Tech Stack](#tech-stack)
+- [License](#license)
 
 ---
 
 ## Overview
 
-Swaralipi Lab is a full-stack application that digitizes handwritten Hindustani Classical music notation. Users upload or photograph a manuscript, select a region of interest, and the system identifies individual swara symbols using a custom-trained YOLOv8 model with multi-stage post-processing for disambiguation.
+Hindustani classical music is written down in *swaralipi*, a notation built from Devanagari letters (सा रे ग म प ध नि) with small marks for *komal* (flat) and *tivra* (sharp) notes. Most of it still lives on paper, written by hand. **Swaralipi Lab** digitises that handwriting.
 
-**Key Features:**
-- Real-time swara detection from manuscript images (12 classes)
-- Interactive ROI selection with bounding-box crop tool
-- Multi-stage inference pipeline (YOLO + template bank + shape analysis)
-- Export to PDF, MusicXML, and plain text
-- MusicXML import with Western → Indian notation conversion
-- Scan history with confidence tracking
-- PWA-ready with mobile camera support
+A custom-trained **YOLOv8** detector finds each symbol. A post-processing stage built from **template matching** and **geometric shape analysis** then resolves the symbols the detector tends to confuse, such as Ma, Pa and Tivra Ma. The result is returned as structured JSON and can be exported to **PDF, MusicXML or plain text**. The app can also import MusicXML and convert Western pitches to swaras.
 
 ---
 
-## Architecture
+## Screenshots
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (Vercel)                          │
-│  React 18 · TypeScript · Vite · TailwindCSS                  │
-│                                                             │
-│  Pages: Home → Scanner → Result → History → Import           │
-│  Services: api/client.ts (Axios)                             │
-│  Utils: exportNotation.ts, device.ts                         │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ HTTP (/api proxy)
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    BACKEND (Render)                           │
-│  FastAPI · Gunicorn · Uvicorn                                │
-│                                                             │
-│  ┌─────────────┐  ┌────────────────┐  ┌─────────────────┐  │
-│  │  main.py    │→ │ inference/     │→ │ mapping/        │  │
-│  │  (routes)   │  │ engine.py      │  │ swara_map.py    │  │
-│  └──────┬──────┘  │ (5-stage ML)   │  │ (ID → symbol)  │  │
-│         │         └────────────────┘  └─────────────────┘  │
-│  ┌──────▼──────┐  ┌────────────────┐                       │
-│  │ database.py │  │ import_parser  │                       │
-│  │ (SQLite)    │  │ (MusicXML)     │                       │
-│  └─────────────┘  └────────────────┘                       │
-└─────────────────────────────────────────────────────────────┘
-```
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/home.png" alt="Home"><p align="center"><b>Home</b>: landing page and usage protocol</p></td>
+    <td width="50%"><img src="docs/images/scanner.png" alt="Scanner"><p align="center"><b>Data Ingestion</b>: upload or capture a manuscript</p></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/history.png" alt="Archive"><p align="center"><b>Archive</b>: scan history with confidence bars</p></td>
+    <td width="50%"><img src="docs/images/import.png" alt="Parser"><p align="center"><b>Parser Engine</b>: MusicXML to swara conversion</p></td>
+  </tr>
+</table>
+
+### Model outputs
+
+<table>
+  <tr>
+    <td width="50%"><img src="swara_extracted/runs/detect/swara_recognition_150_epochs/val_batch0_pred.jpg" alt="Validation predictions"><p align="center"><b>Predictions</b> on held-out validation images</p></td>
+    <td width="50%"><img src="swara_extracted/runs/detect/swara_recognition_150_epochs/confusion_matrix_normalized.png" alt="Confusion matrix"><p align="center"><b>Normalised confusion matrix</b></p></td>
+  </tr>
+</table>
 
 ---
 
-## Folder Structure
+## Features
 
-```
-swaralipi-interactive/
-├── backend/
-│   ├── main.py                 # FastAPI routes (thin controllers)
-│   ├── database.py             # SQLite persistence layer
-│   ├── import_parser.py        # MusicXML → Swara conversion
-│   ├── inference/
-│   │   ├── __init__.py
-│   │   └── engine.py           # YOLOv8 inference + post-processing
-│   ├── mapping/
-│   │   ├── __init__.py
-│   │   └── swara_map.py        # Class ID → notation mapping
-│   ├── models/
-│   │   └── brain.pt            # Trained YOLOv8 weights
-│   ├── requirements.txt        # Python dependencies
-│   ├── Procfile                # Render process definition
-│   └── runtime.txt             # Python version
-│
-├── frontend/
-│   ├── src/
-│   │   ├── api/client.ts       # Axios HTTP client + types
-│   │   ├── pages/              # Route-level components
-│   │   ├── components/         # Reusable UI components
-│   │   └── utils/              # Export helpers, device detection
-│   ├── vite.config.ts          # Build config + dev proxy
-│   ├── tailwind.config.js      # Design system
-│   ├── vercel.json             # Production API rewrites
-│   └── package.json            # Node dependencies
-│
-├── ml_pipeline/
-│   ├── data.yaml               # YOLOv8 dataset config (12 classes)
-│   ├── train.py                # Training script
-│   ├── setup_datasets.py       # Dataset preparation utility
-│   └── datasets/               # Training/validation data
-│
-└── app.py                      # Local dev orchestrator
+| | Feature | Description |
+|---|---|---|
+| 🔍 | **12-class swara detection** | Shuddha, Komal and Tivra variants detected with bounding boxes and confidence |
+| ✂️ | **Interactive ROI cropping** | Drag a box over the exact region to analyse (`react-image-crop`) |
+| 📷 | **Camera or file input** | Works with a webcam or phone camera as well as uploaded PNGs |
+| 🧠 | **Multi-stage inference** | YOLOv8, then template-bank refinement, then shape analysis, then deduplication |
+| 📏 | **Wide-row handling** | Long rows are segmented into symbols and processed individually |
+| ┃ | **Taal vibhag detection** | Vertical bar separators are detected geometrically |
+| ⚠️ | **Uncertainty warnings** | The API flags results where the top two candidates are within 10 percentage points |
+| 📤 | **Export** | PDF (print view), MusicXML and plain text |
+| 📥 | **MusicXML import** | Western C D E F G A B converted to Sa Re Ga Ma Pa Dha Ni, with komal/tivra from accidentals |
+| 🗂️ | **Scan archive** | The 100 most recent scans are kept in SQLite with image crops |
+| 📱 | **Responsive** | Usable on phones, with camera capture |
+
+---
+
+## System Architecture
+
+```mermaid
+flowchart LR
+    subgraph Client["Browser (Vercel)"]
+        UI["React 18 + TypeScript<br/>Vite · TailwindCSS"]
+        Crop["ROI Crop<br/>react-image-crop"]
+        Exp["Export<br/>PDF · MusicXML · TXT"]
+        UI --- Crop
+        UI --- Exp
+    end
+
+    subgraph Server["FastAPI Backend (Render)"]
+        direction TB
+        API["main.py<br/>REST routes"]
+        ENG["inference/engine.py<br/>YOLOv8 + refinement"]
+        MAP["mapping/swara_map.py<br/>class ID → Devanagari"]
+        PARSE["import_parser.py<br/>MusicXML → swaras"]
+        DB[("SQLite<br/>scan history")]
+        MODEL[["brain.pt<br/>YOLOv8 weights"]]
+        API --> ENG
+        API --> MAP
+        API --> PARSE
+        API --> DB
+        ENG --> MODEL
+        PARSE --> MAP
+    end
+
+    UI -- "HTTPS /api/*<br/>(Vercel rewrite)" --> API
 ```
 
 ---
 
 ## Detection Pipeline
 
-The inference engine uses a 5-stage pipeline for maximum accuracy:
+Every request to `/analyze` goes through the following pipeline in [`engine.py`](swaralipi-interactive/backend/inference/engine.py).
+
+```mermaid
+flowchart TD
+    A([PNG image bytes]) --> B{"Width &gt; 2 × height?"}
+    B -- "Yes: wide row" --> C["<b>1. Segmentation</b><br/>connected components,<br/>merge nearby strokes"]
+    B -- "No: single symbol" --> D
+    C --> D["<b>2. YOLOv8 detection</b><br/>conf ≥ 0.15"]
+    D --> E["<b>3. Template-bank refinement</b><br/>cosine similarity vs.<br/>per-class prototypes (64×64)"]
+    E --> F{"Class in<br/>Ma family<br/>{Ma, Pa, Tivra Ma}?"}
+    F -- Yes --> G["<b>4. Shape analysis</b><br/>hole count + ink density<br/>to disambiguate"]
+    F -- No --> H
+    G --> H["<b>5. Deduplication</b><br/>IoU &gt; 0.85 or<br/>centres within 5 px"]
+    H --> I["Detect taal vibhag<br/>(tall thin vertical bars)"]
+    I --> J["Clamp confidence to [0, 0.99]<br/>sort left → right"]
+    J --> K([Detections JSON])
+```
 
 | Stage | Purpose | Method |
-|-------|---------|--------|
-| 1. Segmentation | Split wide rows into symbols | Connected-component analysis |
-| 2. Detection | Identify swara bounding boxes | YOLOv8 object detection |
-| 3. Template Refinement | Second opinion for confusable pairs | Cosine similarity vs. class prototypes |
-| 4. Shape Analysis | Ma/Pa/Tivra Ma disambiguation | Hole detection + density features |
-| 5. Deduplication | Remove overlapping detections | IoU threshold + center proximity |
+|---|---|---|
+| **1. Segmentation** | Split wide rows into individual symbols | Connected-component analysis, merging close components |
+| **2. Detection** | Locate and classify swaras | YOLOv8 at 640 px (higher resolution for wide rows) |
+| **3. Template refinement** | Second opinion on confusable classes | Cosine similarity against class prototypes built from the training set |
+| **4. Shape analysis** | Separate Ma, Pa and Tivra Ma | Enclosed-hole detection and density features |
+| **5. Deduplication** | Remove overlapping boxes | IoU threshold plus centre-proximity check |
 
 ---
 
-## Setup Instructions
+## Request Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant FE as React Frontend
+    participant API as FastAPI
+    participant ENG as Inference Engine
+    participant DB as SQLite
+
+    U->>FE: Upload / capture manuscript
+    U->>FE: Drag ROI box
+    FE->>API: POST /analyze (cropped PNG)
+    API->>API: Validate content-type = image/png
+    API->>ENG: run_inference(bytes)
+    ENG-->>API: raw detections (class_id, conf, bbox)
+    API->>API: Map IDs → name + Devanagari, check uncertainty
+    API->>DB: insert_scan (non-blocking on failure)
+    API-->>FE: primary result + all detections + warning
+    FE-->>U: Result page, export PDF / MusicXML / TXT
+    U->>FE: Open Archive
+    FE->>API: GET /history
+    API->>DB: last 100 scans
+    API-->>FE: scans with base64 crops
+```
+
+---
+
+## Supported Swaras
+
+The model recognises 12 classes. Class order matches [`data.yaml`](swaralipi-interactive/ml_pipeline/data.yaml).
+
+| ID | Swara | Symbol | ID | Swara | Symbol |
+|:-:|---|:-:|:-:|---|:-:|
+| 0 | Dha | ध | 6 | Ma | म |
+| 1 | Ga | ग | 7 | Ni | नि |
+| 2 | Komal Dha | ध॒ | 8 | Pa | प |
+| 3 | Komal Ga | ग॒ | 9 | Re | र |
+| 4 | Komal Ni | नि॒ | 10 | Sa | स |
+| 5 | Komal Re | र॒ | 11 | Tivra Ma | म॑ |
+
+Komal notes are written with an anudatta (॒, line below) and tivra notes with an udatta (॑, mark above). The API also returns `class_id: -1` for **Taal Vibhag** (`|`) separators.
+
+---
+
+## Model Training and Performance
+
+```mermaid
+flowchart LR
+    A["Handwritten<br/>manuscript crops"] --> B["Annotate<br/>12 classes · YOLO format"]
+    B --> C["Train / val split<br/>swara_extracted/data"]
+    C --> D["YOLOv8n fine-tune<br/>150 epochs · 640 px"]
+    D --> E["best.pt / brain.pt"]
+    E --> F["Backend<br/>models/brain.pt"]
+```
+
+Training uses augmentation tuned for a small dataset: HSV jitter, ±15° rotation, translation, scale and shear, mosaic and light mixup. **Horizontal flip is disabled** because notation can be directional. See [`train.py`](swaralipi-interactive/ml_pipeline/train.py).
+
+Final-epoch validation metrics from [`results.csv`](swara_extracted/runs/detect/swara_recognition_150_epochs/results.csv):
+
+| Metric | Value |
+|---|:-:|
+| Precision | **0.818** |
+| Recall | **0.770** |
+| mAP@50 | **0.909** |
+| mAP@50-95 | **0.806** |
+
+The dataset is small (roughly 80 training and 74 validation images), so expect lower accuracy on handwriting styles that differ from the training data. All curves and batches are in [`swara_extracted/runs/detect/swara_recognition_150_epochs/`](swara_extracted/runs/detect/swara_recognition_150_epochs/).
+
+<p align="center">
+  <img src="swara_extracted/runs/detect/swara_recognition_150_epochs/results.png" alt="Training curves" width="85%">
+</p>
+
+---
+
+## Project Structure
+
+```text
+.
+├── render.yaml                     # Render blueprint (backend)
+├── swara_extracted/                # Dataset, labels and training run artifacts
+│   ├── data/                       #   images + YOLO labels
+│   ├── runs/detect/…               #   curves, confusion matrix, weights
+│   └── data.yaml
+├── docs/images/                    # README screenshots
+└── swaralipi-interactive/
+    ├── app.py                      # Local orchestrator (backend + frontend)
+    ├── run-all.bat · START-HERE.bat
+    ├── backend/
+    │   ├── main.py                 # FastAPI routes (thin controllers)
+    │   ├── database.py             # SQLite persistence
+    │   ├── import_parser.py        # MusicXML → swara conversion
+    │   ├── inference/engine.py     # YOLOv8 + multi-stage refinement
+    │   ├── mapping/swara_map.py    # class ID → name / Devanagari
+    │   ├── models/                 # brain.pt, best.pt
+    │   ├── requirements.txt · runtime.txt · Procfile
+    ├── frontend/
+    │   ├── src/
+    │   │   ├── api/client.ts       # Axios client + types
+    │   │   ├── pages/              # Home, Scanner, Result, History, Import
+    │   │   ├── components/         # Navbar, NeuralTooltip
+    │   │   └── utils/              # exportNotation.ts, device.ts
+    │   ├── vite.config.ts · tailwind.config.js
+    │   └── vercel.json             # production API rewrites
+    └── ml_pipeline/
+        ├── train.py                # YOLOv8 training script
+        ├── setup_datasets.py       # dataset preparation
+        └── data.yaml
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
-- Python 3.11+
-- Node.js 18+
 
-### Backend
+- **Python 3.11** (3.10+ works)
+- **Node.js 18+** and npm
+- Model weights at `swaralipi-interactive/backend/models/brain.pt` (included in the repo)
+
+### One command (Windows)
+
+```bat
+swaralipi-interactive\run-all.bat
+```
+
+Or run `python swaralipi-interactive/app.py`.
+
+### Manual setup
+
+**1. Backend**
+
 ```bash
 cd swaralipi-interactive/backend
 python -m venv venv
-venv\Scripts\activate          # Windows
+venv\Scripts\activate            # macOS/Linux: source venv/bin/activate
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-### Frontend
+**2. Frontend**
+
 ```bash
 cd swaralipi-interactive/frontend
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` — API requests proxy to the backend automatically.
+Open the URL Vite prints (normally <http://localhost:5173>). Requests to `/api` are proxied to the backend on port 8000. Interactive API docs are at <http://localhost:8000/docs>.
 
-### Quick Start (Both)
+> **Note:** the inference engine builds its template bank from the dataset in `swara_extracted/data`, so keep that folder next to `swaralipi-interactive/`.
+
+### Retraining the model
+
 ```bash
-cd swaralipi-interactive
-python app.py
+cd swaralipi-interactive/ml_pipeline
+python setup_datasets.py     # prepare datasets/images and datasets/labels
+python train.py              # 150 epochs, writes to runs/swaralipi/exp
 ```
 
----
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SWARALIPI_DB_PATH` | `./swaralipi.db` | SQLite database file path |
-| `PORT` | `8000` | Backend server port (Render) |
-| `VITE_API_URL` | `/api` | Frontend API base URL |
+Copy the resulting `weights/best.pt` to `backend/models/brain.pt` to use it.
 
 ---
 
-## API Documentation
+## Configuration
 
-### `GET /` — Health Check
+| Variable | Default | Where | Description |
+|---|---|---|---|
+| `SWARALIPI_DB_PATH` | `./swaralipi.db` | Backend | SQLite file location |
+| `PORT` | `8000` | Backend (Render) | Server port |
+| `VITE_API_URL` | `/api` | Frontend | API base URL |
+
+---
+
+## API Reference
+
+Base URL (production): `https://swaralipi-backend.onrender.com`
+
+### `GET /` Health check
+
 ```json
-{"status": "success", "message": "Swaralipi Backend API is running."}
+{ "status": "success", "message": "Swaralipi Backend API is running." }
 ```
 
-### `POST /analyze` — Detect Swaras
-**Input:** `multipart/form-data` with `file` field (PNG image)
+### `POST /analyze` Detect swaras
 
-**Response:**
+`multipart/form-data` with a `file` field. **PNG only**; other types return `400`.
+
+```bash
+curl -X POST http://localhost:8000/analyze -F "file=@crop.png;type=image/png"
+```
+
 ```json
 {
   "success": true,
@@ -173,54 +357,87 @@ python app.py
   "hindi_symbol": "स",
   "confidence": 0.9234,
   "detections": [
-    {"class_id": 10, "class_name": "Sa", "hindi_symbol": "स", "confidence": 0.9234, "bbox": [12, 8, 45, 52]}
+    { "class_id": 10, "class_name": "Sa", "hindi_symbol": "स",
+      "confidence": 0.9234, "bbox": [12, 8, 45, 52] }
   ],
-  "timestamp": "2026-05-24T10:30:00+00:00"
+  "timestamp": "2026-05-24T10:30:00+00:00",
+  "message": null
 }
 ```
 
-### `GET /history` — Scan Archive
-Returns the 100 most recent scans with metadata and base64 image crops.
+- `bbox` is `[left, top, right, bottom]` in pixels; detections are sorted left to right.
+- `message` carries an `UNCERTAINTY DETECTED` warning when the top two detections are within 0.10 confidence.
+- If nothing is found: `class_id: null`, `detections: []`, `message: "No symbol detected"`.
 
-### `POST /import` — MusicXML Conversion
-**Input:** `{"format": "musicxml", "content": "<score-partwise>...</score-partwise>"}`
+### `GET /history` Scan archive
 
-**Response:** List of swaras with class_id, english_name, and hindi_symbol.
+Returns the most recent scans (up to 100) with timestamp, class, confidence, Devanagari symbol and base64 image crop.
+
+### `POST /import` MusicXML to swaras
+
+```json
+{ "format": "musicxml", "content": "<score-partwise>…</score-partwise>" }
+```
+
+Returns `{ "success": true, "swaras": [ { "class_id": …, "english_name": …, "hindi_symbol": … } ] }`. Only `musicxml` is supported; anything else returns `400`.
 
 ---
 
-## Trade-offs
+## Deployment
+
+```mermaid
+flowchart LR
+    GH[(GitHub repo)] -->|push to main| V["Vercel<br/>static React build"]
+    GH -->|push to main| R["Render<br/>gunicorn + uvicorn worker"]
+    U([User]) --> V
+    V -- "/api/* rewrite<br/>(vercel.json)" --> R
+    R --> D[("SQLite on disk")]
+```
+
+| Part | Platform | Config |
+|---|---|---|
+| Frontend | Vercel | [`vercel.json`](swaralipi-interactive/frontend/vercel.json) rewrites `/api/*` to the Render backend |
+| Backend | Render (free plan) | [`render.yaml`](render.yaml), start command `gunicorn -w 1 -k uvicorn.workers.UvicornWorker main:app` |
+
+The first request after idle time on the free tier can take 30 to 60 seconds while the service wakes up.
+
+---
+
+## Design Decisions
 
 | Decision | Rationale |
-|----------|-----------|
-| SQLite over PostgreSQL | Zero-config for single-instance free tier deployment |
-| Single Gunicorn worker | YOLOv8 model is ~500MB; multiple workers exceed free RAM |
-| Base64 image storage | Avoids S3 complexity; acceptable at prototype scale |
-| PNG-only uploads | Lossless format preserves thin handwriting strokes |
-| Client-side ROI crop | User defines exactly what to analyze; more accurate than full-page |
-| Confidence capped at 0.99 | No model should claim 100% certainty |
+|---|---|
+| SQLite instead of PostgreSQL | No setup, which suits a single-instance free-tier deployment |
+| Single Gunicorn worker | The model and dependencies are memory-heavy, and more workers exceed free-tier RAM |
+| Base64 images in the database | Avoids object storage; acceptable at prototype scale |
+| PNG-only uploads | Lossless format keeps thin handwriting strokes intact |
+| Client-side ROI crop | The user picks exactly what to analyse, which is more accurate than a full page |
+| Template bank plus shape analysis on top of YOLO | A small dataset leaves some classes confusable; cheap classical features add a second opinion |
+| Confidence capped at 0.99 | A model should not claim certainty |
+| Persistence failures never break a response | History is a convenience, not part of the core result |
 
 ---
 
-## Assumptions
+## Limitations
 
-1. Manuscripts have reasonable contrast (dark ink on light paper)
-2. Single octave — upper/lower octave markers not yet classified
-3. Left-to-right reading order for swara sequences
-4. Model weights (`brain.pt`) must be present locally
-5. Render free tier may have 30-60s cold start on first request
+- Trained on a small dataset, so accuracy depends on how close the handwriting is to it
+- Single octave only: upper and lower octave dots are not yet classified
+- Assumes dark ink on a light background with reasonable contrast
+- Assumes left-to-right reading order
+- CORS is open (`*`) and there is no authentication, and scan history is shared by all users of an instance
+- `render.yaml` stores the SQLite file on the instance disk, so history may not survive redeploys on the free plan
 
 ---
 
-## Future Improvements
+## Roadmap
 
-- [ ] Multi-octave detection (dots above/below swaras)
-- [ ] Full-page batch processing with automatic row segmentation
-- [ ] Raga identification from detected swara sequences
-- [ ] Audio synthesis (MIDI playback of detected notation)
-- [ ] User authentication with per-user scan history
-- [ ] ONNX model export for faster CPU inference
-- [ ] Docker containerization for consistent deployment
+- [ ] Multi-octave detection (dots above and below swaras)
+- [ ] Full-page processing with automatic row segmentation
+- [ ] Raga identification from detected sequences
+- [ ] MIDI playback of detected notation
+- [ ] User accounts with per-user history
+- [ ] ONNX export for faster CPU inference
+- [ ] Docker image for consistent deployment
 - [ ] Annotation tool for user-contributed training data
 
 ---
@@ -228,15 +445,15 @@ Returns the 100 most recent scans with metadata and base64 image crops.
 ## Tech Stack
 
 | Layer | Technologies |
-|-------|-------------|
-| Frontend | React 18, TypeScript, Vite 5, TailwindCSS, react-image-crop |
+|---|---|
+| Frontend | React 18, TypeScript, Vite 5, TailwindCSS, React Router, react-image-crop, react-webcam, Lucide |
 | Backend | FastAPI, Uvicorn, Gunicorn, Python 3.11 |
-| ML/AI | YOLOv8 (Ultralytics), OpenCV, Pillow, NumPy, PyTorch |
-| Database | SQLite |
-| Deployment | Vercel (frontend), Render (backend) |
+| ML / CV | YOLOv8 (Ultralytics), PyTorch, OpenCV, Pillow, NumPy |
+| Storage | SQLite |
+| Hosting | Vercel (frontend), Render (backend) |
 
 ---
 
 ## License
 
-Open source. See individual dependency licenses for third-party components.
+Open source. See the individual dependency licenses for third-party components.
