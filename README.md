@@ -2,7 +2,7 @@
 
 # 🎼 Swaralipi Lab
 
-### Neural inference terminal for handwritten Indian Classical music notation
+### Read handwritten Indian Classical music notation in seconds
 
 Upload or photograph a handwritten *swaralipi* manuscript, crop a region, and get every swara identified in Devanagari, with confidence scores, exportable notation and a persistent scan archive.
 
@@ -55,15 +55,15 @@ A custom-trained **YOLOv8** detector finds each symbol. A post-processing stage 
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/images/home.png" alt="Home"><p align="center"><b>Home</b>: landing page and usage protocol</p></td>
-    <td width="50%"><img src="docs/images/scanner.png" alt="Scanner"><p align="center"><b>Data Ingestion</b>: upload or capture a manuscript</p></td>
+    <td width="50%"><img src="docs/images/home.png" alt="Home"><p align="center"><b>Home</b>: what the app does, at a glance</p></td>
+    <td width="50%"><img src="docs/images/scanner.png" alt="Scanner"><p align="center"><b>Scan</b>: upload a photo or use the camera</p></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/images/result.png" alt="Result"><p align="center"><b>Result</b>: crop a symbol, get the swara and confidence</p></td>
-    <td width="50%"><img src="docs/images/history.png" alt="Archive"><p align="center"><b>Archive</b>: scan history with confidence bars</p></td>
+    <td width="50%"><img src="docs/images/result.png" alt="Result"><p align="center"><b>Result</b>: select a region, get the swara and confidence, then export</p></td>
+    <td width="50%"><img src="docs/images/history.png" alt="History"><p align="center"><b>History</b>: stats, search, swara filters and color-coded confidence</p></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/images/import.png" alt="Parser"><p align="center"><b>Parser Engine</b>: MusicXML to swara conversion</p></td>
+    <td width="50%"><img src="docs/images/import.png" alt="Import"><p align="center"><b>Import</b>: convert MusicXML to swaras</p></td>
     <td width="50%"></td>
   </tr>
 </table>
@@ -92,7 +92,7 @@ A custom-trained **YOLOv8** detector finds each symbol. A post-processing stage 
 | ⚠️ | **Uncertainty warnings** | The API flags results where the top two candidates are within 10 percentage points |
 | 📤 | **Export** | PDF (print view), MusicXML and plain text |
 | 📥 | **MusicXML import** | Western C D E F G A B converted to Sa Re Ga Ma Pa Dha Ni, with komal/tivra from accidentals |
-| 🗂️ | **Scan archive** | The 100 most recent scans are kept in SQLite with image crops |
+| 🗂️ | **Scan history** | The 100 most recent scans are kept in SQLite with image crops, with search, swara filters, sorting and a confidence summary |
 | 📱 | **Responsive** | Usable on phones, with camera capture |
 
 ---
@@ -181,7 +181,7 @@ sequenceDiagram
     API->>DB: insert_scan (non-blocking on failure)
     API-->>FE: primary result + all detections + warning
     FE-->>U: Result page, export PDF / MusicXML / TXT
-    U->>FE: Open Archive
+    U->>FE: Open History
     FE->>API: GET /history
     API->>DB: last 100 scans
     API-->>FE: scans with base64 crops
@@ -344,7 +344,7 @@ Copy `ml/runs/swaralipi/weights/best.pt` to `backend/models/brain.pt` to use it.
 
 ## API Reference
 
-Base URL (production): `https://swaralipi-backend.onrender.com`
+Base URL (production): `https://swara-detection.onrender.com`
 
 ### `GET /` Health check
 
@@ -380,7 +380,7 @@ curl -X POST http://localhost:8000/analyze -F "file=@crop.png;type=image/png"
 - `message` carries an `UNCERTAINTY DETECTED` warning when the top two detections are within 0.10 confidence.
 - If nothing is found: `class_id: null`, `detections: []`, `message: "No symbol detected"`.
 
-### `GET /history` Scan archive
+### `GET /history` Scan history
 
 Returns the most recent scans (up to 100) with timestamp, class, confidence, Devanagari symbol and base64 image crop.
 

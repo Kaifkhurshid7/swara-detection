@@ -3,7 +3,7 @@
 
 services:
   - type: web
-    name: swaralipi-backend
+    name: swara-detection
     runtime: python
     rootDir: backend
     plan: free

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Swaralipi Lab">
+  <rect width="64" height="64" rx="16" fill="#0a0a0a"/>
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21v-5a4 4 0 0 1 4-4h5"/>
+    <path d="M43 12h5a4 4 0 0 1 4 4v5"/>
+    <path d="M52 43v5a4 4 0 0 1-4 4h-5"/>
+    <path d="M21 52h-5a4 4 0 0 1-4-4v-5"/>
+  </g>
+  <g fill="#ffffff">
+    <ellipse cx="27.5" cy="41" rx="7" ry="5.2" transform="rotate(-22 27.5 41)"/>
+    <rect x="33.2" y="18" width="2.8" height="23" rx="1.4"/>
+    <path d="M36 18c0 6 9 7 9 15 0-3-2-5-4.5-6.5C38 25 36 24 36 22z"/>
+  </g>
+</svg>
